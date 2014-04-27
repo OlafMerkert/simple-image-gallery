@@ -20,15 +20,15 @@
 ** TODO global folders for storing
 + location for importing galleries
 + location for dumping thumbnails
-** TODO gallery
+** DONE gallery
 =simple-gallery.sexp=
 + Title
 + description
 + identifier = folder name
 + image sequence
 + date information
-*** TODO folder containing images
-** TODO image
+*** DONE folder containing images
+** DONE image
 *** TODO original file with EXIF metadata
 *** TODO small thumbnail
 128
@@ -37,13 +37,17 @@
 
 * core functionalities
 ** TODO metadata extraction (EXIF)
-** TODO downsizing images
+** DONE downsizing images
    SCHEDULED: <2014-04-27 So>
 calling imagemagick externally (supposed to be very fast)
-** TODO main gallery import process
+** DONE main gallery import process
    SCHEDULED: <2014-04-27 So>
 it should suffice to just upload the files, then the gallery should be automatically imported
 generation of thumbnails could be done as needed, or once at import time
 *** TODO creating zip files, and providing download links
 ** TODO generating thumbnail file names
    SCHEDULED: <2014-04-27 So>
+* Tasks
+** TODO use something safer than =read=
+   [2014-04-27 So 11:22]
+   [[file:~/Projekte/simple-image-gallery/galleries.lisp::(plist-bind%20(title%20description%20last-updated%20images)%20(rest%20(read-file-1%20sexp-file))][file:~/Projekte/simple-image-gallery/galleries.lisp::(plist-bind (title description last-updated images) (rest (read-file-1 sexp-file))]]

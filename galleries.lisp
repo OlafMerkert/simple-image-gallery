@@ -23,10 +23,10 @@
 
 (create-standard-print-object gallery identifier)
 
-(defpar gallery-folders '(#P "~/data/galleries/")
+(defpar gallery-folders '(#P "/home/olaf/data/galleries/")
   "Define a list of locations where we look for galleries.")
 
-(defpar image-cache-dir #P "~/data/image-cache/")
+(defpar image-cache-dir #P "/home/olaf/data/image-cache/")
 
 (defun gallery-pathnames ()
   "Search for all directories in the gallery-folders"
@@ -56,10 +56,20 @@ for the gallery and the images it contains."
                            :title title :description description :last-updated last-updated)
           (setf (slot-value it 'image-sequence)
                 (let ((index -1))
-                  (map 'vector (clambda (image-from-path x! it (incf index))) images)))))))  )
+                  (map 'vector (clambda (image-from-path (merge-pathnames x! gallery-path)
+                                                    it (incf index)))
+                       images)))))))  )
 
 (defun generate-galleries ()
   (filter #'gallery-from-path (gallery-pathnames)))
 
 (defvar *galleries*
   (generate-galleries))
+
+(defun update-galleries ()
+  (setf *galleries* (generate-galleries)))
+
+(update-galleries)
+
+(setf img (elt (image-sequence (first *galleries*)) 0))
+

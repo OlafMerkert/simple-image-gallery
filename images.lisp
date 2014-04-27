@@ -26,22 +26,54 @@
 
 (defpar slideshow-size 1280)
 
-(defmethod thumbnail-path ((image image))
-  ;; todo automatically test if the thumbnail exists and generate it
-  ;; if necessary
-  (with-slots (thumbnail-path) image
-    (or thumbnail-path
-        
-        ))
-  )
-
-(defmethod slideshow-path ((image image))
-  ;; todo ditto
-  )
+(bind-multi ((thumbnail-path thumbnail-path slideshow-path)
+             (thumbnail-size thumbnail-size slideshow-size))
+  (defmethod thumbnail-path ((image image))
+    "automatically test if the thumbnail exists and generate it if
+  necessary"
+    (with-slots (original-path thumbnail-path) image
+      ;; ensure we have a valid path
+      (unless thumbnail-path
+        (setf thumbnail-path (generate-cache-pathname image 'thumbnail-size)))
+      ;; ensure the scaled version was already generated
+      (unless (fad:file-exists-p thumbnail-path)
+        (dbug "~A" thumbnail-path)
+        (ensure-directories-exist thumbnail-path)
+        (im-convert original-path thumbnail-path thumbnail-size))
+      thumbnail-path)))
 
 (defun image-from-path (pathname gallery &optional (position 0))
   (make-instance 'image :original-path pathname
                  :gallery gallery
                  :gallery-position position
                  :identifier (pathname-name pathname)))
+
+;;; downsizing images with imagemagick
+(defun run-program/debug (cmd args &rest flags)
+  (DBUG "~A~{ ~A~}" cmd args)
+  (apply #'sb-ext:run-program cmd args flags))
+
+
+(defun im-convert (source target size)
+  (run-program/debug "/usr/bin/convert"
+                     (list (mkstr source)
+                           "-resize"
+                           (format nil "~Ax~A" size size)
+                           (mkstr target))
+                     :wait nil))
+
+(defpar im-type "jpg")
+
+(defmethod generate-cache-pathname ((image image) suffix)
+  (merge-pathnames
+   (make-pathname :name (identifier image)
+                  :type im-type
+                  :directory (list :relative
+                                   (identifier (gallery image))
+                                   (mkstr suffix)))
+   image-cache-dir))
+
+(generate-cache-pathname img 'thumbnail)
+
+(thumbnail-path img)
 
