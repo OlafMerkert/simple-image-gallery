@@ -69,7 +69,7 @@ for the gallery and the images it contains."
 (defun update-galleries ()
   (setf *galleries* (generate-galleries)))
 
-(update-galleries)
+;; (update-galleries)
 
 (defun find-gallery-by-identifier (identifier)
   (find identifier *galleries* :key #'identifier :test #'string=))

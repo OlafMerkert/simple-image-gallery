@@ -30,9 +30,9 @@
 *** DONE folder containing images
 ** DONE image
 *** TODO original file with EXIF metadata
-*** TODO small thumbnail
+*** DONE small thumbnail
 128
-*** TODO large scaled version for slideshow
+*** DONE large scaled version for slideshow
 1280
 
 * core functionalities

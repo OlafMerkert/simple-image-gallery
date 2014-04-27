@@ -24,7 +24,7 @@
 
 (defpar thumbnail-size 128)
 
-(defpar slideshow-size 1280)
+(defpar slideshow-size 1024)
 
 (bind-multi ((thumbnail-path thumbnail-path slideshow-path)
              (thumbnail-size thumbnail-size slideshow-size))
@@ -37,7 +37,6 @@
         (setf thumbnail-path (generate-cache-pathname image 'thumbnail-size)))
       ;; ensure the scaled version was already generated
       (unless (fad:file-exists-p thumbnail-path)
-        (dbug "~A" thumbnail-path)
         (ensure-directories-exist thumbnail-path)
         (im-convert original-path thumbnail-path thumbnail-size))
       thumbnail-path)))
@@ -49,13 +48,8 @@
                  :identifier (pathname-name pathname)))
 
 ;;; downsizing images with imagemagick
-(defun run-program/debug (cmd args &rest flags)
-  (DBUG "~A~{ ~A~}" cmd args)
-  (apply #'sb-ext:run-program cmd args flags))
-
-
 (defun im-convert (source target size)
-  (run-program/debug "/usr/bin/convert"
+  (sb-ext:run-program "/usr/bin/convert"
                      (list (mkstr source)
                            "-resize"
                            (format nil "~Ax~A" size size)
@@ -75,6 +69,7 @@
                                    (mkstr suffix)))
    image-cache-dir))
 
+;; navigation the image stream
 (defmethod next-image ((image image))
   (let* ((gallery (gallery image))
          (current (gallery-position image))
