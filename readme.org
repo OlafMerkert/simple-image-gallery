@@ -1,0 +1,49 @@
+* Webapp UI structure
+** TODO Entry page: list of available galleries
+** TODO Gallery overview
+   SCHEDULED: <2014-04-27 So>
+*** TODO thumbnails of all images per gallery
+**** TODO center alignment of images?
+*** TODO download the entire gallery
+** TODO Gallery slideshow
+   SCHEDULED: <2014-04-27 So>
+*** TODO large view of single image
+*** TODO display metadata from EXIF
++ title
++ tags?
++ date
++ camera information
+*** TODO navigation <, >
+*** TODO download single image
+
+* data storage format
+** TODO global folders for storing
++ location for importing galleries
++ location for dumping thumbnails
+** TODO gallery
+=simple-gallery.sexp=
++ Title
++ description
++ identifier = folder name
++ image sequence
++ date information
+*** TODO folder containing images
+** TODO image
+*** TODO original file with EXIF metadata
+*** TODO small thumbnail
+128
+*** TODO large scaled version for slideshow
+1280
+
+* core functionalities
+** TODO metadata extraction (EXIF)
+** TODO downsizing images
+   SCHEDULED: <2014-04-27 So>
+calling imagemagick externally (supposed to be very fast)
+** TODO main gallery import process
+   SCHEDULED: <2014-04-27 So>
+it should suffice to just upload the files, then the gallery should be automatically imported
+generation of thumbnails could be done as needed, or once at import time
+*** TODO creating zip files, and providing download links
+** TODO generating thumbnail file names
+   SCHEDULED: <2014-04-27 So>
