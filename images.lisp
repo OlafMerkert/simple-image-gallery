@@ -75,7 +75,16 @@
                                    (mkstr suffix)))
    image-cache-dir))
 
-(generate-cache-pathname img 'thumbnail)
+(defmethod next-image ((image image))
+  (let* ((gallery (gallery image))
+         (current (gallery-position image))
+         (l (length (image-sequence gallery)))
+         (next (mod (+ 1 current) l)))
+    (elt (image-sequence gallery) next)))
 
-(thumbnail-path img)
-
+(defmethod previous-image ((image image))
+  (let* ((gallery (gallery image))
+         (current (gallery-position image))
+         (l (length (image-sequence gallery)))
+         (previous (mod (- current 1) l)))
+    (elt (image-sequence gallery) previous)))

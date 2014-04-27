@@ -19,7 +19,9 @@
    #:slideshow-size
    #:find-gallery-by-identifier
    #:image-sequence
-   #:find-image-by-identifiers))
+   #:find-image-by-identifiers
+   #:previous-image
+   #:next-image))
 
 (defpackage :simple-image-gallery-web
   (:nicknames :sig-web)

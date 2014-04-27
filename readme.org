@@ -7,15 +7,15 @@
 *** TODO download the entire gallery
 ** TODO Gallery slideshow
    SCHEDULED: <2014-04-27 So>
-*** TODO large view of single image
+*** DONE large view of single image
 *** TODO display metadata from EXIF
 + title
 + tags?
 + date
 + camera information
-*** TODO navigation <, >
+*** DONE navigation <, >
 *** TODO download single image
-
+*** TODO automatic, timed blending
 * data storage format
 ** TODO global folders for storing
 + location for importing galleries
