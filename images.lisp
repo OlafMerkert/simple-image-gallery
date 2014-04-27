@@ -60,7 +60,9 @@
                            "-resize"
                            (format nil "~Ax~A" size size)
                            (mkstr target))
-                     :wait nil))
+                     ;; no point going to background, anyway we
+                     ;; usually only access this during a http request
+                     :wait t))
 
 (defpar im-type "jpg")
 

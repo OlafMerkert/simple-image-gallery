@@ -1,8 +1,8 @@
 * Webapp UI structure
-** TODO Entry page: list of available galleries
-** TODO Gallery overview
+** DONE Entry page: list of available galleries
+** DONE Gallery overview
    SCHEDULED: <2014-04-27 So>
-*** TODO thumbnails of all images per gallery
+*** DONE thumbnails of all images per gallery
 **** TODO center alignment of images?
 *** TODO download the entire gallery
 ** TODO Gallery slideshow
@@ -45,9 +45,12 @@ calling imagemagick externally (supposed to be very fast)
 it should suffice to just upload the files, then the gallery should be automatically imported
 generation of thumbnails could be done as needed, or once at import time
 *** TODO creating zip files, and providing download links
-** TODO generating thumbnail file names
+** DONE generating thumbnail file names
    SCHEDULED: <2014-04-27 So>
 * Tasks
 ** TODO use something safer than =read=
    [2014-04-27 So 11:22]
    [[file:~/Projekte/simple-image-gallery/galleries.lisp::(plist-bind%20(title%20description%20last-updated%20images)%20(rest%20(read-file-1%20sexp-file))][file:~/Projekte/simple-image-gallery/galleries.lisp::(plist-bind (title description last-updated images) (rest (read-file-1 sexp-file))]]
+** TODO produce a macro for scan-to-strings usage as we do it.
+   [2014-04-27 So 12:49]
+   [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(mvbind%20(whole%20registers)%20(ppcre:scan-to-strings%20image-data-url-regex)][file:~/Projekte/simple-image-gallery/web-ui.lisp::(mvbind (whole registers) (ppcre:scan-to-strings image-data-url-regex)]]

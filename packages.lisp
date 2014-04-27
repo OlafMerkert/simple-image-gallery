@@ -1,3 +1,5 @@
+(in-package :ol-user)
+
 (defpackage :simple-image-gallery
   (:nicknames :sig)
   (:use :cl :ol)
@@ -7,8 +9,23 @@
    #:identifier
    #:title
    #:description
-   #:last-updated))
+   #:last-updated
+   #:image
+   #:original-path
+   #:thumbnail-path
+   #:slideshow-path
+   #:gallery-position
+   #:thumbnail-size
+   #:slideshow-size
+   #:find-gallery-by-identifier
+   #:image-sequence
+   #:find-image-by-identifiers))
 
-(in-package :simple-image-gallery)
-
+(defpackage :simple-image-gallery-web
+  (:nicknames :sig-web)
+  (:use :cl :ol
+        :web-utils
+        :cl-who
+        :hunchentoot)
+  (:export))
 

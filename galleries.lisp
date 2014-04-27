@@ -71,5 +71,11 @@ for the gallery and the images it contains."
 
 (update-galleries)
 
-(setf img (elt (image-sequence (first *galleries*)) 0))
+(defun find-gallery-by-identifier (identifier)
+  (find identifier *galleries* :key #'identifier :test #'string=))
+
+(defun find-image-by-identifiers (gallery-identifier image-identifier)
+  (aif (find-gallery-by-identifier gallery-identifier)
+       (find image-identifier (image-sequence it) :key #'identifier :test #'string=)))
+
 
