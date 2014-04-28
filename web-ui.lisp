@@ -41,54 +41,45 @@
                      (esc (sig:title g)))))))))
 
 (defun image-data-provider ()
-  (mvbind (whole registers) (ppcre:scan-to-strings image-data-url-regex (url-decode (script-name*)))
-    (if (not whole)
-        #2=(error-code)
-        (let* ((gal-id (aref registers 1))
-               (image-id (aref registers 2))
-               (size (assoc1 (aref registers 0) image-data-sizes nil :test #'string-equal))
-               (image (sig:find-image-by-identifiers gal-id image-id)))
-          (if (not (and size image))
-              #2#
-              (handle-static-file (funcall size image)))))))
+  (ppcre:register-groups-bind (size gal-id image-id)
+      (image-data-url-regex (url-decode (script-name*)))
+    (let ((size (assoc1 size image-data-sizes nil :test #'string-equal))
+          (image (sig:find-image-by-identifiers gal-id image-id)))
+      (if (not (and size image))
+          (error-code)
+          (handle-static-file (funcall size image))))))
 
 (defun gallery-overview ()
-  (mvbind (whole registers) (ppcre:scan-to-strings gallery-overview-regex (url-decode (script-name*)))
-    (if (not whole)
-        #2=(error-code)
-        (let* ((gal-id (elt registers 0))
-               (gallery (sig:find-gallery-by-identifier gal-id)))
-          (if (not gallery)
-              #2#
-              (html/document (:title #1=(conc "Simple Gallery - " (sig:title gallery)))
-                (:h1 (esc #1#))
-                (:div :class "image-grid"
-                      (map nil
-                           (lambda (image)
-                             (htm (:a :href (image-slideshow-url image)
-                                      (:img :src (image-data-url image "thumbnail")))))
-                           (sig:image-sequence gallery)))))))))
+  (ppcre:register-groups-bind (gal-id) (gallery-overview-regex (url-decode (script-name*)))
+    (let ((gallery (sig:find-gallery-by-identifier gal-id)))
+      (if (not gallery)
+          (error-code)
+          (html/document (:title #1=(conc "Simple Gallery - " (sig:title gallery)))
+            (:h1 (esc #1#))
+            (:div :class "image-grid"
+                  (map nil
+                       (lambda (image)
+                         (htm (:a :href (image-slideshow-url image)
+                                  (:img :src (image-data-url image "thumbnail")))))
+                       (sig:image-sequence gallery))))))))
 
 (defun gallery-slideshow ()
-  (mvbind (whole registers) (ppcre:scan-to-strings gallery-slideshow-regex (url-decode (script-name*)))
-    (if (not whole)
-        #2=(error-code)
-        (let* ((gal-id (elt registers 0))
-               (image-id (elt registers 1))
-               (image (sig:find-image-by-identifiers gal-id image-id)))
-          (if (not image)
-              #2#
-              (html/document (:title #1=(conc "Simple Gallery - "
-                                              (sig:title (sig:gallery image)) "- Image Nr "
-                                              (mkstr (+ 1 (sig:gallery-position image)))))
-                (:h1 (esc #1#))
-                (:div :class "image-slideshow"
-                      (:a :class "slideshow-motion"
-                          :href (image-slideshow-url (sig:previous-image image))
-                          "Previous")
-                      "&nbsp;&nbsp;&nbsp;&nbsp;"
-                      (:a :class "slideshow-motion"
-                          :href (image-slideshow-url (sig:next-image image))
-                          "Next")
-                      (:br)
-                      (:img :src (image-data-url image "slideshow")))))))))
+  (ppcre:register-groups-bind (gal-id image-id)
+      (gallery-slideshow-regex (url-decode (script-name*)))
+    (let ((image (sig:find-image-by-identifiers gal-id image-id)))
+      (if (not image)
+          (error-code)
+          (html/document (:title #1=(conc "Simple Gallery - "
+                                          (sig:title (sig:gallery image)) " - Image Nr "
+                                          (mkstr (+ 1 (sig:gallery-position image)))))
+            (:h1 (esc #1#))
+            (:div :class "image-slideshow"
+                  (:a :class "slideshow-motion"
+                      :href (image-slideshow-url (sig:previous-image image))
+                      "Previous")
+                  "&nbsp;&nbsp;&nbsp;&nbsp;"
+                  (:a :class "slideshow-motion"
+                      :href (image-slideshow-url (sig:next-image image))
+                      "Next")
+                  (:br)
+                  (:img :src (image-data-url image "slideshow"))))))))

@@ -51,6 +51,10 @@ generation of thumbnails could be done as needed, or once at import time
 ** TODO use something safer than =read=
    [2014-04-27 So 11:22]
    [[file:~/Projekte/simple-image-gallery/galleries.lisp::(plist-bind%20(title%20description%20last-updated%20images)%20(rest%20(read-file-1%20sexp-file))][file:~/Projekte/simple-image-gallery/galleries.lisp::(plist-bind (title description last-updated images) (rest (read-file-1 sexp-file))]]
-** TODO produce a macro for scan-to-strings usage as we do it.
+** DONE produce a macro for =scan-to-strings= usage as we do it.
    [2014-04-27 So 12:49]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(mvbind%20(whole%20registers)%20(ppcre:scan-to-strings%20image-data-url-regex)][file:~/Projekte/simple-image-gallery/web-ui.lisp::(mvbind (whole registers) (ppcre:scan-to-strings image-data-url-regex)]]
+   there was already such a macro in the ~cl-ppcre~ library
+** TODO navigate to overview, generally navigation to gallery-list
+   [2014-04-27 So 21:22]
+   [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(defun%20gallery-slideshow%20()][file:~/Projekte/simple-image-gallery/web-ui.lisp::(defun gallery-slideshow ()]]
