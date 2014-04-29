@@ -60,3 +60,7 @@ generation of thumbnails could be done as needed, or once at import time
 ** DONE navigate to overview, generally navigation to gallery-list
    [2014-04-27 So 21:22]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(defun%20gallery-slideshow%20()][file:~/Projekte/simple-image-gallery/web-ui.lisp::(defun gallery-slideshow ()]]
+* Tasks
+** TODO display the file size of the original image next to the download link
+   [2014-04-29 Di 14:34]
+   [[file:~/Projekte/simple-image-gallery/web-ui.lisp::"Download%20original%20image")))))))][file:~/Projekte/simple-image-gallery/web-ui.lisp::"Download original image")))))))]]

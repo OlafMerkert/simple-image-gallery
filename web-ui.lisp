@@ -47,10 +47,16 @@
 (defun render-breadcrumb (alist)
   (html/node
     (:div :class "breadcrumb"
-          (dolist (br alist)
-            (htm " [ "
-                 (:a :href (car br) (esc (cdr br)))
-                 " ] ")))))
+          " [ "
+          (let ((first t))
+            (dolist (br alist)
+              (if first
+                  (setf first nil)
+                  (htm " / "))
+              (htm 
+               (:a :href (car br) (esc (cdr br)))
+               )))
+          " ] ")))
 
 (defpar top-breadcrumb '("/simple-gallery" . "All Galleries"))
 
@@ -104,7 +110,10 @@
                       :href (image-slideshow-url (sig:next-image image))
                       "Next")
                   (:br)
-                  (:img :src (image-data-url image "slideshow"))))))))
+                  (:img :src (image-data-url image "slideshow"))
+                  (:br)
+                  (:a :href (image-data-url image "original") :target "_blank"
+                      "Download original image")))))))
 
 ;;; CSS stylesheet
 (pushnew (create-regex-dispatcher "^/simple-gallery/base\\.css$" 'simple-gallery-css)
@@ -160,7 +169,7 @@
                :display "block"
                :text-align "center"
                :clear "both"))
-     (("a")
+     (("a.slideshow-motion")
       (:margin "1ex"
                :margin-left "3ex"
                :display "block"
