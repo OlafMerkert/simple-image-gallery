@@ -21,7 +21,8 @@
    #:image-sequence
    #:find-image-by-identifiers
    #:previous-image
-   #:next-image))
+   #:next-image
+   #:update-galleries))
 
 (defpackage :simple-image-gallery-web
   (:nicknames :sig-web)

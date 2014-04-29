@@ -63,13 +63,12 @@ for the gallery and the images it contains."
 (defun generate-galleries ()
   (filter #'gallery-from-path (gallery-pathnames)))
 
-(defvar *galleries*
-  (generate-galleries))
+(defvar *galleries* nil
+  ;;(generate-galleries)
+  )
 
 (defun update-galleries ()
   (setf *galleries* (generate-galleries)))
-
-;; (update-galleries)
 
 (defun find-gallery-by-identifier (identifier)
   (find identifier *galleries* :key #'identifier :test #'string=))
