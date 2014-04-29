@@ -14,16 +14,29 @@
 + date
 + camera information
 *** DONE navigation <, >
-*** TODO download single image
+*** DONE download single image
 *** TODO automatic, timed blending
 ** DONE Stylesheet
    SCHEDULED: <2014-04-29 Di>
 * data storage format
-** TODO global folders for storing
+** DONE global folders for storing
 + location for importing galleries
 + location for dumping thumbnails
 ** DONE gallery
 =simple-gallery.sexp=
+for example contains something like this
+#+BEGIN_SRC 
+(define-simple-gallery
+  :title "Bildschirmfotos"
+  :description "Diverse Aufnahmen meines Desktops"
+  :last-updated "So 27. Apr 10:49:51 CEST 2014"
+  :images 
+  (
+   "Bildschirmfoto von 2013-12-29 11:44:40.png"
+   "Bildschirmfoto von 2013-12-29 11:44:44.png"
+   ...
+   ))
+#+END_SRC
 + Title
 + description
 + identifier = folder name
@@ -60,6 +73,9 @@ generation of thumbnails could be done as needed, or once at import time
 ** DONE navigate to overview, generally navigation to gallery-list
    [2014-04-27 So 21:22]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(defun%20gallery-slideshow%20()][file:~/Projekte/simple-image-gallery/web-ui.lisp::(defun gallery-slideshow ()]]
+** TODO display the description of the gallery
+   [2014-04-30 Mi 11:25]
+   [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(:div%20:class%20"image-grid"][file:~/Projekte/simple-image-gallery/web-ui.lisp::(:div :class "image-grid"]]
 * Tasks
 ** TODO display the file size of the original image next to the download link
    [2014-04-29 Di 14:34]
