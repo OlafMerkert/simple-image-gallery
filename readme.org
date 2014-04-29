@@ -16,6 +16,8 @@
 *** DONE navigation <, >
 *** TODO download single image
 *** TODO automatic, timed blending
+** DONE Stylesheet
+   SCHEDULED: <2014-04-29 Di>
 * data storage format
 ** TODO global folders for storing
 + location for importing galleries
@@ -55,6 +57,6 @@ generation of thumbnails could be done as needed, or once at import time
    [2014-04-27 So 12:49]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(mvbind%20(whole%20registers)%20(ppcre:scan-to-strings%20image-data-url-regex)][file:~/Projekte/simple-image-gallery/web-ui.lisp::(mvbind (whole registers) (ppcre:scan-to-strings image-data-url-regex)]]
    there was already such a macro in the ~cl-ppcre~ library
-** TODO navigate to overview, generally navigation to gallery-list
+** DONE navigate to overview, generally navigation to gallery-list
    [2014-04-27 So 21:22]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(defun%20gallery-slideshow%20()][file:~/Projekte/simple-image-gallery/web-ui.lisp::(defun gallery-slideshow ()]]

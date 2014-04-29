@@ -4,7 +4,8 @@
                iterate
                hunchentoot
                cl-who
-               web-utils)
+               web-utils
+               css-lite)
     :serial t
     :components ((:file "packages")
                  (:file "utils")

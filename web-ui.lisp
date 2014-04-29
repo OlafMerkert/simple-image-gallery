@@ -32,9 +32,30 @@
 (pushnew (create-regex-dispatcher gallery-slideshow-regex 'gallery-slideshow)
          *dispatch-table*)
 
+(pushnew (create-regex-dispatcher "^/simple-gallery/green-squares\\.png$"
+                                  (lambda () (handle-static-file #P"/home/olaf/Projekte/simple-image-gallery/green-squares.png" )))
+         *dispatch-table*)
+
+
+(defmacro gallery-template ((&key title breadcrumb) &body body)
+  `(html/document (:title ,title
+                          :style "/simple-gallery/base.css")
+     (:img :class "header-image" :src "/simple-gallery/green-squares.png")
+     (:h1 (esc ,title))
+     ,@body))
+
+(defun render-breadcrumb (alist)
+  (html/node
+    (:div :class "breadcrumb"
+          (dolist (br alist)
+            (htm " [ "
+                 (:a :href (car br) (esc (cdr br)))
+                 " ] ")))))
+
+(defpar top-breadcrumb '("/simple-gallery" . "All Galleries"))
+
 (defun gallery-list ()
-  (html/document (:title #1="Simple Image Gallery - Overview")
-    (:h1 #1#)
+  (gallery-template (:title "Simple Image Gallery - Overview")
     (:ul
      (dolist (g sig:*galleries*)
        (htm (:li (:a :href (conc "/simple-gallery/" (sig:identifier g) "/")
@@ -54,8 +75,8 @@
     (let ((gallery (sig:find-gallery-by-identifier gal-id)))
       (if (not gallery)
           (error-code)
-          (html/document (:title #1=(conc "Simple Gallery - " (sig:title gallery)))
-            (:h1 (esc #1#))
+          (gallery-template (:title (sig:title gallery))
+            (render-breadcrumb (list top-breadcrumb))
             (:div :class "image-grid"
                   (map nil
                        (lambda (image)
@@ -69,10 +90,11 @@
     (let ((image (sig:find-image-by-identifiers gal-id image-id)))
       (if (not image)
           (error-code)
-          (html/document (:title #1=(conc "Simple Gallery - "
-                                          (sig:title (sig:gallery image)) " - Image Nr "
+          (gallery-template (:title (conc (sig:title (sig:gallery image)) " - Image "
                                           (mkstr (+ 1 (sig:gallery-position image)))))
-            (:h1 (esc #1#))
+            (let ((gallery (sig:gallery image)))
+              (render-breadcrumb (list top-breadcrumb (cons (conc "/simple-gallery/" (sig:identifier gallery))
+                                                            (sig:title gallery)))))
             (:div :class "image-slideshow"
                   (:a :class "slideshow-motion"
                       :href (image-slideshow-url (sig:previous-image image))
@@ -83,3 +105,72 @@
                       "Next")
                   (:br)
                   (:img :src (image-data-url image "slideshow"))))))))
+
+;;; CSS stylesheet
+(pushnew (create-regex-dispatcher "^/simple-gallery/base\\.css$" 'simple-gallery-css)
+         *dispatch-table*)
+
+(defun simple-gallery-css ()
+  (setf (hunchentoot:content-type*) "text/css")
+  (css
+    (("body") (:font-family "sans-serif" :font-size "11pt" :line-height "140%"
+                            :color "#e8ede5"
+                            :background-color "#47662a"
+                            :padding-left "110px"))
+    ((".header-image") (:display "block"
+                                 :position "absolute"
+                                 :top "5px"
+                                 :left "5px"
+                                 :z-index "-10"))
+    (("h1") (:color "#d9ffb3"
+                    :font-size "250%"
+                    :margin "20pt"
+                    :margin-top "30pt"))
+    (("a:link," "a:visited")
+     (:color "#ffffff"
+             :text-decoration "underline"
+             :font-style "normal"))
+    (("a:hover," "a:active," "a:focus")
+     (:color "#f1f285"
+             :text-decoration "underline"
+             :font-style "normal"))
+    (("ul," "ol")
+     (:line-height "200%"
+                   :font-size "120%"
+                   :margin-left "4em"))
+    ((".image-grid")
+     (:margin "2ex"
+              ;;:border "1px solid white"
+              ;;:padding "5pt"
+              )
+     (("img")
+      (:margin "3pt"
+               :border "1px solid white"
+               :padding "2pt"
+               )))
+    ((".image-slideshow")
+     ()
+     (("img")
+      (:margin "4pt"
+               :margin-top "5ex"
+               :border "1px solid white"
+               :padding "3pt"
+               :min-width "600px"
+               :max-width "90%"
+               :display "block"
+               :text-align "center"
+               :clear "both"))
+     (("a")
+      (:margin "1ex"
+               :margin-left "3ex"
+               :display "block"
+               :float "left"
+               :text-decoration "none"
+               :border "1px solid white"
+               :padding "3pt")))
+    ((".breadcrumb")
+     (:font-size "80%"
+                 :margin "1ex"
+                 :margin-left "10ex"
+                 :margin-bottom "5ex"
+                 :margin-top "-2ex"))))
