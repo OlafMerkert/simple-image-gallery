@@ -121,65 +121,76 @@
 
 (defun simple-gallery-css ()
   (setf (hunchentoot:content-type*) "text/css")
-  (css
-    (("body") (:font-family "sans-serif" :font-size "11pt" :line-height "140%"
-                            :color "#e8ede5"
-                            :background-color "#47662a"
-                            :padding-left "110px"))
-    ((".header-image") (:display "block"
-                                 :position "absolute"
-                                 :top "5px"
-                                 :left "5px"
-                                 :z-index "-10"))
-    (("h1") (:color "#d9ffb3"
-                    :font-size "250%"
-                    :margin "20pt"
-                    :margin-top "30pt"))
-    (("a:link," "a:visited")
-     (:color "#ffffff"
-             :text-decoration "underline"
-             :font-style "normal"))
-    (("a:hover," "a:active," "a:focus")
-     (:color "#f1f285"
-             :text-decoration "underline"
-             :font-style "normal"))
-    (("ul," "ol")
-     (:line-height "200%"
-                   :font-size "120%"
-                   :margin-left "4em"))
-    ((".image-grid")
-     (:margin "2ex"
-              ;;:border "1px solid white"
-              ;;:padding "5pt"
-              )
-     (("img")
-      (:margin "3pt"
-               :border "1px solid white"
-               :padding "2pt"
-               )))
-    ((".image-slideshow")
-     ()
-     (("img")
-      (:margin "4pt"
-               :margin-top "5ex"
-               :border "1px solid white"
-               :padding "3pt"
-               :min-width "600px"
-               :max-width "90%"
-               :display "block"
-               :text-align "center"
-               :clear "both"))
-     (("a.slideshow-motion")
-      (:margin "1ex"
-               :margin-left "3ex"
-               :display "block"
-               :float "left"
-               :text-decoration "none"
-               :border "1px solid white"
-               :padding "3pt")))
-    ((".breadcrumb")
-     (:font-size "80%"
-                 :margin "1ex"
-                 :margin-left "10ex"
-                 :margin-bottom "5ex"
-                 :margin-top "-2ex"))))
+  (let ((thumb-size (format nil "~Apx" (+ 15 sig:thumbnail-size))))
+   (css
+     (("body") (:font-family "sans-serif" :font-size "11pt" :line-height "140%"
+                             :color "#e8ede5"
+                             :background-color "#47662a"
+                             :padding-left "110px"))
+     ((".header-image") (:display "block"
+                                  :position "absolute"
+                                  :top "5px"
+                                  :left "5px"
+                                  :z-index "-10"))
+     (("h1") (:color "#d9ffb3"
+                     :font-size "24pt"
+                     :line-height "30pt"
+                     :margin "20pt"
+                     :margin-top "30pt"))
+     (("a:link," "a:visited")
+      (:color "#ffffff"
+              :text-decoration "underline"
+              :font-style "normal"))
+     (("a:hover," "a:active," "a:focus")
+      (:color "#f1f285"
+              :text-decoration "underline"
+              :font-style "normal"))
+     (("ul," "ol")
+      (:line-height "200%"
+                    :font-size "120%"
+                    :margin-left "4em"))
+     ((".image-grid")
+      (:margin "2ex"
+               ;;:border "1px solid white"
+               ;;:padding "5pt"
+               )
+      #|((".image-cell")
+       (:height thumb-size 
+        :width thumb-size
+        :display "inline-block"
+        :text-align "center"
+        :vertical-align "middle"))|#
+      (("img")
+       (:margin "3pt"
+                :border "1px solid white"
+                :padding "2pt"
+                )))
+     ((".image-slideshow")
+      ()
+      (("img")
+       (:margin "4pt"
+                :margin-top "5ex"
+                :border "1px solid white"
+                :padding "3pt"
+                :min-width "600px"
+                :max-width "90%"
+                :display "block"
+                :text-align "center"
+                :clear "both"))
+      (("a.slideshow-motion")
+       (:margin "1ex"
+                :margin-left "3ex"
+                :display "block"
+                :float "left"
+                :text-decoration "none"
+                :border "1px solid white"
+                :padding "3pt")))
+     ((".breadcrumb")
+      (:font-size "80%"
+                  :margin "1ex"
+                  :margin-left "10ex"
+                  :margin-bottom "5ex"
+                  :margin-top "-2ex")))))
+
+;;; register the web application
+(register-web-application "Simple Image Gallery" "/simple-gallery/")
