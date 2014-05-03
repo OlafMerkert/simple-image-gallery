@@ -5,7 +5,8 @@
                hunchentoot
                cl-who
                web-utils
-               css-lite)
+               css-lite
+               clon)
     :serial t
     :components ((:file "packages")
                  (:file "utils")

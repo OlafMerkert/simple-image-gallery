@@ -22,7 +22,8 @@
    #:find-image-by-identifiers
    #:previous-image
    #:next-image
-   #:update-galleries))
+   #:update-galleries
+   #:schedule-update-galleries))
 
 (defpackage :simple-image-gallery-web
   (:nicknames :sig-web)

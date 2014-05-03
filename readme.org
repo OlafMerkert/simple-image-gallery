@@ -76,7 +76,7 @@ generation of thumbnails could be done as needed, or once at import time
 ** TODO display the description of the gallery
    [2014-04-30 Mi 11:25]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(:div%20:class%20"image-grid"][file:~/Projekte/simple-image-gallery/web-ui.lisp::(:div :class "image-grid"]]
-* Tasks
 ** TODO display the file size of the original image next to the download link
    [2014-04-29 Di 14:34]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::"Download%20original%20image")))))))][file:~/Projekte/simple-image-gallery/web-ui.lisp::"Download original image")))))))]]
+** TODO enable password protection for image galleries (i.e. private galleries)

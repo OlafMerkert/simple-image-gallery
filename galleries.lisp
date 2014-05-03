@@ -70,6 +70,16 @@ for the gallery and the images it contains."
 (defun update-galleries ()
   (setf *galleries* (generate-galleries)))
 
+(defpar daily (clon:make-typed-cron-schedule :day-of-month '*))
+
+#+sbcl
+(defun schedule-update-galleries ()
+  (clon:schedule-function 'update-galleries
+                          (clon:make-scheduler daily :allow-now-p t)
+                          :name "Simple Gallery scan for galleries"
+                          :thread t))
+
+
 (defun find-gallery-by-identifier (identifier)
   (find identifier *galleries* :key #'identifier :test #'string=))
 
