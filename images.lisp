@@ -50,13 +50,16 @@
 ;;; downsizing images with imagemagick
 (defun im-convert (source target size)
   (sb-ext:run-program "/usr/bin/convert"
-                     (list (mkstr source)
-                           "-resize"
-                           (format nil "~Ax~A" size size)
-                           (mkstr target))
-                     ;; no point going to background, anyway we
-                     ;; usually only access this during a http request
-                     :wait t))
+                      (list (mkstr source)
+                            ;; respect orientation, which we maybe
+                            ;; need to pull from EXIF data
+                            "-auto-orient"
+                            "-resize"
+                            (format nil "~Ax~A" size size)
+                            (mkstr target))
+                      ;; no point going to background, anyway we
+                      ;; usually only access this during a http request
+                      :wait t))
 
 (defpar im-type "jpg")
 
