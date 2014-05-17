@@ -13,6 +13,12 @@
 (defmethod image-slideshow-url ((image sig:image))
   (conc "/simple-gallery/" (sig:identifier (sig:gallery image)) "/" (sig:identifier image)))
 
+(defmethod gallery-overview-url ((image sig:image))
+  (gallery-overview-url (sig:gallery image)))
+
+(defmethod gallery-overview-url ((gallery sig:gallery))
+  (conc "/simple-gallery/" (sig:identifier gallery) "/"))
+
 ;; regular expressions and dispatchers
 (defpar image-data-url-regex "/simple-gallery/data/([^/]+)/([^/]+)/([^/]+)\\.([^/.]+)")
 
@@ -64,7 +70,7 @@
   (gallery-template (:title "Simple Image Gallery - Overview")
     (:ul
      (dolist (g sig:*galleries*)
-       (htm (:li (:a :href (conc "/simple-gallery/" (sig:identifier g) "/")
+       (htm (:li (:a :href (gallery-overview-url g)
                      (esc (sig:title g)))))))))
 
 (defun image-data-provider ()
@@ -110,7 +116,8 @@
                       :href (image-slideshow-url (sig:next-image image))
                       "Next")
                   (:br)
-                  (:img :src (image-data-url image "slideshow"))
+                  (:a :href (gallery-overview-url image)
+                      (:img :src (image-data-url image "slideshow")))
                   (:br)
                   (:a :href (image-data-url image "original") :target "_blank"
                       "Download original image")))))))

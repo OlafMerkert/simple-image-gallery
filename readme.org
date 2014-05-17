@@ -5,8 +5,7 @@
 *** DONE thumbnails of all images per gallery
 **** TODO center alignment of images?
 *** TODO download the entire gallery
-** TODO Gallery slideshow
-   SCHEDULED: <2014-04-27 So>
+** DONE Gallery slideshow
 *** DONE large view of single image
 *** TODO display metadata from EXIF
 + title
@@ -16,6 +15,7 @@
 *** DONE navigation <, >
 *** DONE download single image
 *** TODO automatic, timed blending
+*** DONE move to gallery overview when clicking on slideshow image
 ** DONE Stylesheet
    SCHEDULED: <2014-04-29 Di>
 * data storage format
