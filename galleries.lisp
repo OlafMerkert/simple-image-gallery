@@ -44,21 +44,27 @@
   `(let ,(mapcar #`(,a1 (getf ,g!plist ,(keyw a1))) bindings)
      ,@body))
 
+(define-condition missing-gallery-file (warning)
+  ((gallery-path :initarg :gallery-path
+                 :initform nil
+                 :reader gallery-path)))
+
 (defun gallery-from-path (gallery-path)
   "Look at the special file in the given `path', and create objects
 for the gallery and the images it contains."
   (let ((sexp-file (merge-pathnames "simple-gallery.sexp" gallery-path)))
-    (when (fad:file-exists-p sexp-file)
-      (plist-bind (title description last-updated images) (rest (read-file-1 sexp-file))
-        (aprog1
-            (make-instance 'gallery
-                           :identifier (last1 (pathname-directory gallery-path))
-                           :title title :description description :last-updated last-updated)
-          (setf (slot-value it 'image-sequence)
-                (let ((index -1))
-                  (map 'vector (clambda (image-from-path (merge-pathnames x! gallery-path)
-                                                    it (incf index)))
-                       images)))))))  )
+    (if (fad:file-exists-p sexp-file)
+        (plist-bind (title description last-updated images) (rest (read-file-1 sexp-file))
+          (aprog1
+              (make-instance 'gallery
+                             :identifier (last1 (pathname-directory gallery-path))
+                             :title title :description description :last-updated last-updated)
+            (setf (slot-value it 'image-sequence)
+                  (let ((index -1))
+                    (map 'vector (clambda (image-from-path (merge-pathnames x! gallery-path)
+                                                      it (incf index)))
+                         images)))))
+        (warn 'missing-gallery-file :gallery-path gallery-path))))
 
 (defun generate-galleries ()
   (filter #'gallery-from-path (gallery-pathnames)))

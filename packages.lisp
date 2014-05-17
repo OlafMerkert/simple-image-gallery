@@ -23,7 +23,8 @@
    #:previous-image
    #:next-image
    #:update-galleries
-   #:schedule-update-galleries))
+   #:schedule-update-galleries
+   #:missing-gallery-file))
 
 (defpackage :simple-image-gallery-web
   (:nicknames :sig-web)
