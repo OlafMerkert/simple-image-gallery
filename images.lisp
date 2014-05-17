@@ -11,6 +11,7 @@
                    :initform nil)
    (slideshow-path :initarg :slideshow-path
                    :initform nil)
+   original-image-size
    (gallery :initarg :gallery
          :initform nil
          :reader gallery)
@@ -86,3 +87,22 @@
          (l (length (image-sequence gallery)))
          (previous (mod (- current 1) l)))
     (elt (image-sequence gallery) previous)))
+
+;;; metadata about the images
+(defpar size-prefixes '("" K M G T))
+
+(defun format-file-size (size)
+  "Given the file size in bytes, produce something human readable like
+  8 MB."
+  ;; use that (^ 2 10) = 1024
+  (let ((level (floor (- (integer-length size) 1) 10)))
+    (if (<= level 0)
+        (format nil "~D B" size)
+        (format nil "~,2F ~AB"
+                (/ size (^ 1024 level))
+                (elt size-prefixes level)))))
+
+(defmethod original-image-size ((image image))
+  (if (slot-boundp image 'original-image-size)
+      #1=(slot-value image 'original-image-size)
+      (setf #1# (ql-util:file-size (original-path image)))))

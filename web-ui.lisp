@@ -122,7 +122,8 @@
                       (:img :src (image-data-url image "slideshow")))
                   (:br)
                   (:a :href (image-data-url image "original") :target "_blank"
-                      "Download original image")))))))
+                      "Download original image")
+                  " [ " (esc (sig:format-file-size (sig:original-image-size image))) " ] "))))))
 
 ;;; CSS stylesheet
 (pushnew (create-regex-dispatcher "^/simple-gallery/base\\.css$" 'simple-gallery-css)
@@ -160,7 +161,9 @@
                     :margin-left "4em"))
      ((".gallery-description")
       (:text-indent "2em"
-                    :max-width "100ex"))
+                    :max-width "60ex"
+                    :margin-left "4ex"
+                    :margin-bottom "5ex"))
      ((".image-grid")
       (:margin "2ex"
                ;;:border "1px solid white"

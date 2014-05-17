@@ -24,7 +24,9 @@
    #:next-image
    #:update-galleries
    #:schedule-update-galleries
-   #:missing-gallery-file))
+   #:missing-gallery-file
+   #:original-image-size
+   #:format-file-size))
 
 (defpackage :simple-image-gallery-web
   (:nicknames :sig-web)
