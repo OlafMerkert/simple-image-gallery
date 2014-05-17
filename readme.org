@@ -15,6 +15,9 @@
 *** DONE navigation <, >
 *** DONE download single image
 *** TODO automatic, timed blending
+**** TODO adjust url in browser
+**** TODO jquery blend function
+**** TODO first: javascript implementation for <, >
 *** DONE move to gallery overview when clicking on slideshow image
 ** DONE Stylesheet
    SCHEDULED: <2014-04-29 Di>
@@ -73,7 +76,7 @@ generation of thumbnails could be done as needed, or once at import time
 ** DONE navigate to overview, generally navigation to gallery-list
    [2014-04-27 So 21:22]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(defun%20gallery-slideshow%20()][file:~/Projekte/simple-image-gallery/web-ui.lisp::(defun gallery-slideshow ()]]
-** TODO display the description of the gallery
+** DONE display the description of the gallery
    [2014-04-30 Mi 11:25]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(:div%20:class%20"image-grid"][file:~/Projekte/simple-image-gallery/web-ui.lisp::(:div :class "image-grid"]]
 ** TODO display the file size of the original image next to the download link

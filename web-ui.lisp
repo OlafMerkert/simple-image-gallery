@@ -88,7 +88,9 @@
       (if (not gallery)
           (error-code)
           (gallery-template (:title (sig:title gallery))
-            (render-breadcrumb (list top-breadcrumb))
+                            (render-breadcrumb (list top-breadcrumb))
+                            (:p :class "gallery-description"
+                                (esc (sig:description gallery)))
             (:div :class "image-grid"
                   (map nil
                        (lambda (image)
@@ -156,6 +158,9 @@
       (:line-height "200%"
                     :font-size "120%"
                     :margin-left "4em"))
+     ((".gallery-description")
+      (:text-indent "2em"
+                    :max-width "100ex"))
      ((".image-grid")
       (:margin "2ex"
                ;;:border "1px solid white"
