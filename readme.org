@@ -47,7 +47,7 @@ for example contains something like this
 + date information
 *** DONE folder containing images
 ** DONE image
-*** TODO original file with EXIF metadata
+*** DONE original file with EXIF metadata
 *** DONE small thumbnail
 128
 *** DONE large scaled version for slideshow
@@ -55,6 +55,14 @@ for example contains something like this
 
 * core functionalities
 ** TODO metadata extraction (EXIF)
+*** TODO date of image
+*** TODO shot data
++ focal length
++ aperture
++ ISO
++ flash
+*** TODO tags
+*** TODO title
 ** DONE downsizing images
    SCHEDULED: <2014-04-27 So>
 calling imagemagick externally (supposed to be very fast)
@@ -83,3 +91,9 @@ generation of thumbnails could be done as needed, or once at import time
    [2014-04-29 Di 14:34]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::"Download%20original%20image")))))))][file:~/Projekte/simple-image-gallery/web-ui.lisp::"Download original image")))))))]]
 ** TODO enable password protection for image galleries (i.e. private galleries)
+** TODO show some statistics of the gallery
+*** TODO compound size
+*** TODO number of images
+*** TODO last updates
+*** TODO time range of images
+*** TODO occuring tags
