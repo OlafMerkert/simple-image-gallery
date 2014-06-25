@@ -74,7 +74,7 @@ generation of thumbnails could be done as needed, or once at import time
 ** DONE generating thumbnail file names
    SCHEDULED: <2014-04-27 So>
 * Tasks
-** TODO use something safer than =read=
+** DONE use something safer than =read=
    [2014-04-27 So 11:22]
    [[file:~/Projekte/simple-image-gallery/galleries.lisp::(plist-bind%20(title%20description%20last-updated%20images)%20(rest%20(read-file-1%20sexp-file))][file:~/Projekte/simple-image-gallery/galleries.lisp::(plist-bind (title description last-updated images) (rest (read-file-1 sexp-file))]]
 ** DONE produce a macro for =scan-to-strings= usage as we do it.

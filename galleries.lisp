@@ -34,11 +34,12 @@
             (remove-if-not #'fad:directory-pathname-p (fad:list-directory dir)))
           gallery-folders))
 
-;; todo move to ol-utils
-(defun read-file-1 (pathname)
-  "Read the first sexp in the given file."
+(cl-secure-read:define-secure-read safe-read)
+
+(defun safe-read-file-1 (pathname)
+  "Read the first sexp in the given file in a secure manner."
   (with-open-file (stream pathname :if-does-not-exist :error)
-    (read stream)))
+    (safe-read stream)))
 
 (defmacro! plist-bind (bindings o!plist &body body)
   `(let ,(mapcar #`(,a1 (getf ,g!plist ,(keyw a1))) bindings)
@@ -54,7 +55,7 @@
 for the gallery and the images it contains."
   (let ((sexp-file (merge-pathnames "simple-gallery.sexp" gallery-path)))
     (if (fad:file-exists-p sexp-file)
-        (plist-bind (title description last-updated images) (rest (read-file-1 sexp-file))
+        (plist-bind (title description last-updated images) (rest (safe-read-file-1 sexp-file))
           (aprog1
               (make-instance 'gallery
                              :identifier (last1 (pathname-directory gallery-path))

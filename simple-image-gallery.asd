@@ -6,7 +6,8 @@
                cl-who
                web-utils
                css-lite
-               clon)
+               clon
+               cl-secure-read)
     :serial t
     :components ((:file "packages")
                  (:file "utils")
