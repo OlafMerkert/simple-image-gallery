@@ -13,11 +13,13 @@
                    :initform nil)
    original-image-size
    (gallery :initarg :gallery
-         :initform nil
-         :reader gallery)
+            :initform nil
+            :reader gallery)
    (gallery-position :initarg :gallery-position
                      :initform 0
-                     :reader gallery-position))
+                     :reader gallery-position)
+   (datetime :initform nil
+         :reader datetime))
   (:documentation "Keep track of filename and file locations. Later
   perhaps also cache EXIF metadata."))
 
@@ -106,3 +108,25 @@
   (if (slot-boundp image 'original-image-size)
       #1=(slot-value image 'original-image-size)
       (setf #1# (ql-util:file-size (original-path image)))))
+
+(defstruct (foto-parameters (:conc-name foto-))
+  focal-length
+  aperture
+  shutter-speed
+  iso
+  flash)
+
+(defun read-exif-data (image)
+  "Extract the date from EXIF data if available, otherwise use the
+`file-write-date'."
+  (handler-case
+      (let ((exif (zpb-exif:make-exif (original-path image))))
+        (setf (slot-value image 'datetime)
+              (zpb-exif:parsed-exif-value "DateTime" exif)))
+    (zpb-exif:invalid-stream ()
+      (setf (slot-value image 'datetime)
+            (file-write-date (original-path image))))))
+
+(defmethod initialize-instance :after ((image image) &key)
+  (read-exif-data image))
+

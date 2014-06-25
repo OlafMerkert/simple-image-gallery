@@ -64,11 +64,20 @@ for the gallery and the images it contains."
                   (let ((index -1))
                     (map 'vector (clambda (image-from-path (merge-pathnames x! gallery-path)
                                                       it (incf index)))
-                         images)))))
+                         images)))
+            ;; compute the date
+            (setf (slot-value it 'last-updated)
+                  (gallery-compute-date it))))
         (warn 'missing-gallery-file :gallery-path gallery-path))))
 
+(defun gallery-compute-date (gallery)
+  (reduce #'max (image-sequence gallery) :key #'datetime))
+
+
 (defun generate-galleries ()
-  (filter #'gallery-from-path (gallery-pathnames)))
+  (sort 
+   (filter #'gallery-from-path (gallery-pathnames))
+   #'>= :key #'last-updated))
 
 (defvar *galleries* nil
   ;;(generate-galleries)

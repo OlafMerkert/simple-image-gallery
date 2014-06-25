@@ -7,7 +7,10 @@
                web-utils
                css-lite
                clon
-               cl-secure-read)
+               cl-secure-read
+               parenscript
+               zpb-exif
+               local-time)
     :serial t
     :components ((:file "packages")
                  (:file "utils")
