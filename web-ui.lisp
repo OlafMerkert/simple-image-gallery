@@ -1,5 +1,9 @@
 (in-package :simple-image-gallery-web)
 
+(eval-when (:execute)
+  (load-web-library :jquery)
+  (load-web-library :jquery-sticky))
+
 ;;; generate urls for images
 (defpar image-data-sizes '(("original" . sig:original-path)
                            ("slideshow" . sig:slideshow-path)
@@ -45,12 +49,16 @@
 
 (defmacro gallery-template ((&key title breadcrumb) &body body)
   `(html/document (:title ,title
-                          :style "/simple-gallery/base.css")
+                          :style "/simple-gallery/base.css"
+                          :script "/scripts/jquery-1.10.2.min.js"
+                          :script "/scripts/sticky/sticky.js"
+                          :style "/scripts/sticky/sticky.css")
      (:img :class "header-image" :src "/simple-gallery/green-squares.png")
      (:h1 (esc ,title))
      ,@body))
 
 (defun render-breadcrumb (alist)
+  "Generate Hierarchy navigation, expect an list of `(url . title)'."
   (html/node
     (:div :class "breadcrumb"
           " [ "
@@ -66,12 +74,17 @@
 
 (defpar top-breadcrumb '("/simple-gallery" . "All Galleries"))
 
+(defun fmt-universal-time (time)
+  (local-time:format-timestring nil (local-time:universal-to-timestamp time)
+                                :format '(:short-weekday " " :short-month " " :day ". " :year ", " :hour ":" :min)))
+
 (defun gallery-list ()
   (gallery-template (:title "Simple Image Gallery - Overview")
     (:ul
      (dolist (g sig:*galleries*)
        (htm (:li (:a :href (gallery-overview-url g)
-                     (esc (sig:title g)))))))))
+                     (esc (sig:title g)))
+                 (:span :class "datetime" " (" (str (fmt-universal-time (sig:last-updated g))) ") ")))))))
 
 (defun image-data-provider ()
   (ppcre:register-groups-bind (size gal-id image-id)
@@ -117,6 +130,8 @@
                   (:a :class "slideshow-motion"
                       :href (image-slideshow-url (sig:next-image image))
                       "Next")
+                  (:br)
+                  (:span :class "datetime" " &nbsp; (" (str (fmt-universal-time (sig:datetime image))) ") ")
                   (:br)
                   (:a :href (gallery-overview-url image)
                       (:img :src (image-data-url image "slideshow")))
@@ -205,7 +220,11 @@
                   :margin "1ex"
                   :margin-left "10ex"
                   :margin-bottom "5ex"
-                  :margin-top "-2ex")))))
+                  :margin-top "-2ex"))
+     ((".datetime")
+      (:font-size "70%"
+                  :font-family "monospace"
+                  )))))
 
 ;;; register the web application
 (register-web-application "Simple Image Gallery" "/simple-gallery/")
