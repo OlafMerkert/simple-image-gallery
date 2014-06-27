@@ -78,13 +78,67 @@
   (local-time:format-timestring nil (local-time:universal-to-timestamp time)
                                 :format '(:short-weekday " " :short-month " " :day ". " :year ", " :hour ":" :min)))
 
+(defun gallery-login (password message)
+  (flet ((password-form (&key wrong-password)
+           (gallery-template (:title "Simple Image Gallery - Login")
+             (:p (esc message))
+             (:form :method "post" :action ""
+                    (when wrong-password
+                      (htm (:p :class "warning" "Wrong password - please try again.")))
+                    (:label :for "password" "Gallery password:") " "
+                    (:input :name "password" :type "password" :value "")
+                    (:input :type "submit" :value "Login")))))
+    (let ((password-param (post-parameter "password")))
+      (if (and (stringp password-param) (not (length=0 password-param)))
+          (if (string= password-param password)
+              :success
+              (password-form :wrong-password t))
+          (password-form)))))
+
+(defun authorised-p (object)
+  (let ((session (start-session)))
+    (aand (session-value 'simple-image-gallery-authorisation session)
+          (gethash (sig:protection-identifier object) it))))
+
+(defun authorise (object)
+  (let* ((session (start-session))
+         (table #1=(session-value 'simple-image-gallery-authorisation session)))
+    (unless table
+      (setf table (make-hash-table)
+            #1# table))
+    (setf (gethash (sig:protection-identifier object) table) t)))
+
+(defun with-protection% (object body-function)
+  (if (and (sig:protected-p object)
+              (not (authorised-p object)))
+         ;; produce the login form
+         (let ((lf (gallery-login (sig:protected-p object) "This gallery is protected by a password.")))
+           (if (eq lf :success)
+               (progn
+                 (authorise object)
+                 (funcall body-function))
+               lf))
+         ;; provide the page content
+         (funcall body-function)))
+
+(defmacro! with-protection (object &body body)
+  `(with-protection% ,object (lambda () ,@body)))
+
+(defmacro! with-protection/silent (o!object &body body)
+  `(if (or (not (sig:protected-p ,g!object))
+           (authorised-p ,g!object))
+       ,@body
+       (error-code hunchentoot:+http-forbidden+)))
+
 (defun gallery-list ()
   (gallery-template (:title "Simple Image Gallery - Overview")
     (:ul
      (dolist (g sig:*galleries*)
        (htm (:li (:a :href (gallery-overview-url g)
                      (esc (sig:title g)))
-                 (:span :class "datetime" " (" (str (fmt-universal-time (sig:last-updated g))) ") ")))))))
+                 (:span :class "datetime" " (" (str (fmt-universal-time (sig:last-updated g))) ") ")
+                 (when (sig:protected-p g)
+                   (htm " " (:span :class "protected" "(password required)") " "))))))))
 
 (defun image-data-provider ()
   (ppcre:register-groups-bind (size gal-id image-id)
@@ -93,23 +147,25 @@
           (image (sig:find-image-by-identifiers gal-id image-id)))
       (if (not (and size image))
           (error-code)
-          (handle-static-file (funcall size image))))))
+          (with-protection/silent image
+            (handle-static-file (funcall size image)))))))
 
 (defun gallery-overview ()
   (ppcre:register-groups-bind (gal-id) (gallery-overview-regex (url-decode (script-name*)))
     (let ((gallery (sig:find-gallery-by-identifier gal-id)))
       (if (not gallery)
           (error-code)
-          (gallery-template (:title (sig:title gallery))
-                            (render-breadcrumb (list top-breadcrumb))
-                            (:p :class "gallery-description"
-                                (esc (sig:description gallery)))
-            (:div :class "image-grid"
-                  (map nil
-                       (lambda (image)
-                         (htm (:a :href (image-slideshow-url image)
-                                  (:img :src (image-data-url image "thumbnail")))))
-                       (sig:image-sequence gallery))))))))
+          (with-protection gallery
+            (gallery-template (:title (sig:title gallery))
+              (render-breadcrumb (list top-breadcrumb))
+              (:p :class "gallery-description"
+                  (esc (sig:description gallery)))
+              (:div :class "image-grid"
+                    (map nil
+                         (lambda (image)
+                           (htm (:a :href (image-slideshow-url image)
+                                    (:img :src (image-data-url image "thumbnail")))))
+                         (sig:image-sequence gallery)))))))))
 
 (defun gallery-slideshow ()
   (ppcre:register-groups-bind (gal-id image-id)
@@ -117,28 +173,29 @@
     (let ((image (sig:find-image-by-identifiers gal-id image-id)))
       (if (not image)
           (error-code)
-          (gallery-template (:title (conc (sig:title (sig:gallery image)) " - Image "
-                                          (mkstr (+ 1 (sig:gallery-position image)))))
-            (let ((gallery (sig:gallery image)))
-              (render-breadcrumb (list top-breadcrumb (cons (conc "/simple-gallery/" (sig:identifier gallery))
-                                                            (sig:title gallery)))))
-            (:div :class "image-slideshow"
-                  (:a :class "slideshow-motion"
-                      :href (image-slideshow-url (sig:previous-image image))
-                      "Previous")
-                  "&nbsp;&nbsp;&nbsp;&nbsp;"
-                  (:a :class "slideshow-motion"
-                      :href (image-slideshow-url (sig:next-image image))
-                      "Next")
-                  (:br)
-                  (:span :class "datetime" " &nbsp; (" (str (fmt-universal-time (sig:datetime image))) ") ")
-                  (:br)
-                  (:a :href (gallery-overview-url image)
-                      (:img :src (image-data-url image "slideshow")))
-                  (:br)
-                  (:a :href (image-data-url image "original") :target "_blank"
-                      "Download original image")
-                  " [ " (esc (sig:format-file-size (sig:original-image-size image))) " ] "))))))
+          (with-protection image
+            (gallery-template (:title (conc (sig:title (sig:gallery image)) " - Image "
+                                            (mkstr (+ 1 (sig:gallery-position image)))))
+              (let ((gallery (sig:gallery image)))
+                (render-breadcrumb (list top-breadcrumb (cons (conc "/simple-gallery/" (sig:identifier gallery))
+                                                              (sig:title gallery)))))
+              (:div :class "image-slideshow"
+                    (:a :class "slideshow-motion"
+                        :href (image-slideshow-url (sig:previous-image image))
+                        "Previous")
+                    "&nbsp;&nbsp;&nbsp;&nbsp;"
+                    (:a :class "slideshow-motion"
+                        :href (image-slideshow-url (sig:next-image image))
+                        "Next")
+                    (:br)
+                    (:span :class "datetime" " &nbsp; (" (str (fmt-universal-time (sig:datetime image))) ") ")
+                    (:br)
+                    (:a :href (gallery-overview-url image)
+                        (:img :src (image-data-url image "slideshow")))
+                    (:br)
+                    (:a :href (image-data-url image "original") :target "_blank"
+                        "Download original image")
+                    " [ " (esc (sig:format-file-size (sig:original-image-size image))) " ] ")))))))
 
 ;;; CSS stylesheet
 (pushnew (create-regex-dispatcher "^/simple-gallery/base\\.css$" 'simple-gallery-css)
@@ -162,6 +219,7 @@
                      :line-height "30pt"
                      :margin "20pt"
                      :margin-top "30pt"))
+     ((".warning") (:color "orange"))
      (("a:link," "a:visited")
       (:color "#ffffff"
               :text-decoration "underline"
@@ -224,7 +282,10 @@
      ((".datetime")
       (:font-size "70%"
                   :font-family "monospace"
-                  )))))
+                  ))
+     ((".protected")
+      (:font-size "70%"
+                  :font-family "monospace")))))
 
 ;;; register the web application
 (register-web-application "Simple Image Gallery" "/simple-gallery/")

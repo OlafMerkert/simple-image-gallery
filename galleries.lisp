@@ -10,6 +10,9 @@
    (description :initarg :description
                 :initform ""
                 :reader description)
+   (password :initarg :password
+             :initform nil
+             :reader password)
    (last-updated :initarg :last-updated
                  :initform nil
                  :reader last-updated)
@@ -20,6 +23,12 @@
   describes a sequence of images. There may also be some date
   information, and we use the folder name as identifier (this also
   allows to reconstruct the path easily)."))
+
+(defmethod protected-p ((gallery gallery))
+  (password gallery))
+
+(defmethod protection-identifier ((gallery gallery))
+  gallery)
 
 (create-standard-print-object gallery identifier)
 
@@ -55,11 +64,12 @@
 for the gallery and the images it contains."
   (let ((sexp-file (merge-pathnames "simple-gallery.sexp" gallery-path)))
     (if (fad:file-exists-p sexp-file)
-        (plist-bind (title description last-updated images) (rest (safe-read-file-1 sexp-file))
+        (plist-bind (title description last-updated images password) (rest (safe-read-file-1 sexp-file))
           (aprog1
               (make-instance 'gallery
                              :identifier (last1 (pathname-directory gallery-path))
-                             :title title :description description :last-updated last-updated)
+                             :title title :description description :last-updated last-updated
+                             :password password)
             (setf (slot-value it 'image-sequence)
                   (let ((index -1))
                     (map 'vector (clambda (image-from-path (merge-pathnames x! gallery-path)

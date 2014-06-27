@@ -27,7 +27,9 @@
    #:missing-gallery-file
    #:original-image-size
    #:format-file-size
-   #:datetime))
+   #:datetime
+   #:protected-p
+   #:protection-identifier))
 
 (defpackage :simple-image-gallery-web
   (:nicknames :sig-web)

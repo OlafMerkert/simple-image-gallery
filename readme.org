@@ -93,7 +93,7 @@ generation of thumbnails could be done as needed, or once at import time
 ** DONE display the file size of the original image next to the download link
    [2014-04-29 Di 14:34]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::"Download%20original%20image")))))))][file:~/Projekte/simple-image-gallery/web-ui.lisp::"Download original image")))))))]]
-** TODO enable password protection for image galleries (i.e. private galleries)
+** DONE enable password protection for image galleries (i.e. private galleries)
 ** TODO show some statistics of the gallery
 *** TODO compound size
 *** TODO number of images
@@ -104,3 +104,9 @@ generation of thumbnails could be done as needed, or once at import time
    [2014-06-25 Mi 14:57]
    [[file:~/Projekte/simple-image-gallery/galleries.lisp::(filter%20#'gallery-from-path%20(gallery-pathnames)))][file:~/Projekte/simple-image-gallery/galleries.lisp::(filter #'gallery-from-path (gallery-pathnames)))]]
 *** DONE compute date of gallery as most recent date of its images
+** TODO put image information into a table
+   [2014-06-25 Mi 15:42]
+   [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(:span%20:class%20"datetime"%20"%20&nbsp%3B%20("%20(str%20(fmt-universal-time%20(sig:datetime%20image)))%20")%20")][file:~/Projekte/simple-image-gallery/web-ui.lisp::(:span :class "datetime" " &nbsp; (" (str (fmt-universal-time (sig:datetime image))) ") ")]]
+** TODO indicate protected galleries in the overview
+   [2014-06-27 Fr 10:47]
+   [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(:span%20:class%20"datetime"%20"%20("%20(str%20(fmt-universal-time%20(sig:last-updated%20g)))%20")%20")))))))][file:~/Projekte/simple-image-gallery/web-ui.lisp::(:span :class "datetime" " (" (str (fmt-universal-time (sig:last-updated g))) ") ")))))))]]

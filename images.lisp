@@ -23,6 +23,12 @@
   (:documentation "Keep track of filename and file locations. Later
   perhaps also cache EXIF metadata."))
 
+(defmethod protected-p ((image image))
+  (protected-p (gallery image)))
+
+(defmethod protection-identifier ((image image))
+  (gallery image))
+
 (create-standard-print-object image identifier)
 
 (defpar thumbnail-size 128)
