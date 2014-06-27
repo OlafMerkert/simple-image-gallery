@@ -32,6 +32,7 @@ for example contains something like this
 (define-simple-gallery
   :title "Bildschirmfotos"
   :description "Diverse Aufnahmen meines Desktops"
+  :password nil
   :last-updated "So 27. Apr 10:49:51 CEST 2014"
   :images 
   (
@@ -45,6 +46,7 @@ for example contains something like this
 + identifier = folder name
 + image sequence
 + date information
++ Password if desired
 *** DONE folder containing images
 ** DONE image
 *** DONE original file with EXIF metadata
@@ -54,7 +56,7 @@ for example contains something like this
 1280
 
 * core functionalities
-** TODO metadata extraction (EXIF)
+** DONE metadata extraction (EXIF)
 *** DONE date of image
 if no exif data is present, fall back to =file-write-date=
 =DateTime=
@@ -77,9 +79,10 @@ generation of thumbnails could be done as needed, or once at import time
 ** DONE generating thumbnail file names
    SCHEDULED: <2014-04-27 So>
 * Tasks
-** DONE use something safer than =read=
+** TODO use something safer than =read=
    [2014-04-27 So 11:22]
    [[file:~/Projekte/simple-image-gallery/galleries.lisp::(plist-bind%20(title%20description%20last-updated%20images)%20(rest%20(read-file-1%20sexp-file))][file:~/Projekte/simple-image-gallery/galleries.lisp::(plist-bind (title description last-updated images) (rest (read-file-1 sexp-file))]]
+*** =safe-read= does not work properly for monte-verruca gallery
 ** DONE produce a macro for =scan-to-strings= usage as we do it.
    [2014-04-27 So 12:49]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(mvbind%20(whole%20registers)%20(ppcre:scan-to-strings%20image-data-url-regex)][file:~/Projekte/simple-image-gallery/web-ui.lisp::(mvbind (whole registers) (ppcre:scan-to-strings image-data-url-regex)]]
@@ -94,7 +97,9 @@ generation of thumbnails could be done as needed, or once at import time
    [2014-04-29 Di 14:34]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::"Download%20original%20image")))))))][file:~/Projekte/simple-image-gallery/web-ui.lisp::"Download original image")))))))]]
 ** DONE enable password protection for image galleries (i.e. private galleries)
+*** TODO encryption/hashing for passwords
 ** TODO show some statistics of the gallery
+this could go in a popup
 *** TODO compound size
 *** TODO number of images
 *** TODO last updates
@@ -107,6 +112,9 @@ generation of thumbnails could be done as needed, or once at import time
 ** TODO put image information into a table
    [2014-06-25 Mi 15:42]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(:span%20:class%20"datetime"%20"%20&nbsp%3B%20("%20(str%20(fmt-universal-time%20(sig:datetime%20image)))%20")%20")][file:~/Projekte/simple-image-gallery/web-ui.lisp::(:span :class "datetime" " &nbsp; (" (str (fmt-universal-time (sig:datetime image))) ") ")]]
-** TODO indicate protected galleries in the overview
+** DONE indicate protected galleries in the overview
    [2014-06-27 Fr 10:47]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(:span%20:class%20"datetime"%20"%20("%20(str%20(fmt-universal-time%20(sig:last-updated%20g)))%20")%20")))))))][file:~/Projekte/simple-image-gallery/web-ui.lisp::(:span :class "datetime" " (" (str (fmt-universal-time (sig:last-updated g))) ") ")))))))]]
+** TODO portrait images are scaled down less than landscape ones
+   [2014-06-27 Fr 11:53]
+   [[file:~/Projekte/simple-image-gallery/web-ui.lisp:::min-width%20"600px"][file:~/Projekte/simple-image-gallery/web-ui.lisp:::min-width "600px"]]
