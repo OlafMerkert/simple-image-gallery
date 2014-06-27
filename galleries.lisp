@@ -43,13 +43,6 @@
             (remove-if-not #'fad:directory-pathname-p (fad:list-directory dir)))
           gallery-folders))
 
-(cl-secure-read:define-secure-read safe-read)
-
-(defun safe-read-file-1 (pathname)
-  "Read the first sexp in the given file in a secure manner."
-  (with-open-file (stream pathname :if-does-not-exist :error)
-    (safe-read stream)))
-
 (defmacro! plist-bind (bindings o!plist &body body)
   `(let ,(mapcar #`(,a1 (getf ,g!plist ,(keyw a1))) bindings)
      ,@body))
@@ -64,7 +57,7 @@
 for the gallery and the images it contains."
   (let ((sexp-file (merge-pathnames "simple-gallery.sexp" gallery-path)))
     (if (fad:file-exists-p sexp-file)
-        (plist-bind (title description last-updated images password) (rest (safe-read-file-1 sexp-file))
+        (plist-bind (title description last-updated images password) (rest (read-file-1 sexp-file))
           (aprog1
               (make-instance 'gallery
                              :identifier (last1 (pathname-directory gallery-path))
@@ -81,8 +74,7 @@ for the gallery and the images it contains."
         (warn 'missing-gallery-file :gallery-path gallery-path))))
 
 (defun gallery-compute-date (gallery)
-  (reduce #'max (image-sequence gallery) :key #'datetime))
-
+  (reduce #'max (image-sequence gallery) :key #'datetime :initial-value 0))
 
 (defun generate-galleries ()
   (sort 
