@@ -80,10 +80,14 @@
 (defpar top-breadcrumb '("/simple-gallery" . "All Galleries"))
 
 (defun fmt-universal-time (time)
+  "Convert a timestamp into a pretty string."
   (local-time:format-timestring nil (local-time:universal-to-timestamp time)
                                 :format '(:short-weekday " " :short-month " " :day ". " :year ", " :hour ":" :min)))
 
 (defun gallery-login (password message)
+  "Display and process a password prompt form. Return `:success' if
+the user supplies `password'. For customisation, we show `message' at
+the top of the form."
   (flet ((password-form (&key wrong-password)
            (gallery-template (:title "Simple Image Gallery - Login")
              (:p (esc message))
@@ -101,11 +105,13 @@
           (password-form)))))
 
 (defun authorised-p (object)
+  "Check if the user has already supplied the password for `object'."
   (let ((session (start-session)))
     (aand (session-value 'simple-image-gallery-authorisation session)
           (gethash (sig:protection-identifier object) it))))
 
 (defun authorise (object)
+  "Mark `object' as free to access for current user."
   (let* ((session (start-session))
          (table #1=(session-value 'simple-image-gallery-authorisation session)))
     (unless table
@@ -114,6 +120,7 @@
     (setf (gethash (sig:protection-identifier object) table) t)))
 
 (defun with-protection% (object body-function)
+  "Backing function for `with-protection'."
   (if (and (sig:protected-p object)
               (not (authorised-p object)))
          ;; produce the login form
@@ -127,15 +134,20 @@
          (funcall body-function)))
 
 (defmacro! with-protection (object &body body)
+  "Helper macro, which causes a password prompt to be shown if the
+`object' is protected."
   `(with-protection% ,object (lambda () ,@body)))
 
 (defmacro! with-protection/silent (o!object &body body)
+  "Helper macro, which denies access to `object' if it is protected
+and no yet authorised."
   `(if (or (not (sig:protected-p ,g!object))
            (authorised-p ,g!object))
        ,@body
        (error-code hunchentoot:+http-forbidden+)))
 
 (defun gallery-list ()
+  "Display a list of all known galleries"
   (gallery-template (:title "Simple Image Gallery - Overview")
     (:ul
      (dolist (g sig:*galleries*)
@@ -146,6 +158,7 @@
                    (htm " " (:span :class "protected" "(password required)") " "))))))))
 
 (defun image-data-provider ()
+  "Serve the actual image files, of the various sizes defined in `image-data-sizes'."
   (ppcre:register-groups-bind (size gal-id image-id)
       (image-data-url-regex (url-decode (script-name*)))
     (let ((size (assoc1 size image-data-sizes nil :test #'string-equal))
@@ -156,6 +169,7 @@
             (handle-static-file (funcall size image)))))))
 
 (defun gallery-overview ()
+  "Display a grid of all images in a gallery"
   (ppcre:register-groups-bind (gal-id) (gallery-overview-regex (url-decode (script-name*)))
     (let ((gallery (sig:find-gallery-by-identifier gal-id)))
       (if (not gallery)
@@ -173,6 +187,7 @@
                          (sig:image-sequence gallery)))))))))
 
 (defun gallery-slideshow ()
+  "Display a single image of a gallery"
   (ppcre:register-groups-bind (gal-id image-id)
       (gallery-slideshow-regex (url-decode (script-name*)))
     (let ((image (sig:find-image-by-identifiers gal-id image-id)))
