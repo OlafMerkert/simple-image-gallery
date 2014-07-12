@@ -183,7 +183,10 @@ and no yet authorised."
                     (map nil
                          (lambda (image)
                            (htm (:a :href (image-slideshow-url image)
-                                    (:img :src (image-data-url image "thumbnail")))))
+                                    (:img :src (image-data-url image "thumbnail")
+                                          :style (aif (sig:image-dimensions (sig:thumbnail-path image))
+                                                      (format nil "width: ~Apx; height: ~Apx;" (car it) (cdr it))
+                                                      "")))))
                          (sig:image-sequence gallery)))))))))
 
 (defun gallery-slideshow ()

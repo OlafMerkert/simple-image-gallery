@@ -115,6 +115,15 @@
       #1=(slot-value image 'original-image-size)
       (setf #1# (ql-util:file-size (original-path image)))))
 
+(memodefun image-dimensions% (pathname)
+  (cl-gd:with-image-from-file* (pathname)
+    (cons (cl-gd:image-width)
+          (cl-gd:image-height))))
+
+(defun image-dimensions (pathname)
+  (when (fad:file-exists-p pathname)
+    (image-dimensions% pathname)))
+
 (defstruct (foto-parameters (:conc-name foto-))
   focal-length
   aperture

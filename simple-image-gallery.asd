@@ -10,7 +10,8 @@
                cl-secure-read
                parenscript
                zpb-exif
-               local-time)
+               local-time
+               cl-gd)
     :serial t
     :components ((:file "packages")
                  (:file "utils")

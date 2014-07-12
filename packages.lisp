@@ -29,7 +29,8 @@
    #:format-file-size
    #:datetime
    #:protected-p
-   #:protection-identifier))
+   #:protection-identifier
+   #:image-dimensions))
 
 (defpackage :simple-image-gallery-web
   (:nicknames :sig-web)
