@@ -1,8 +1,7 @@
 (in-package :simple-image-gallery-web)
 
-(eval-when (:execute)
-  (load-web-library :jquery)
-  (load-web-library :jquery-sticky))
+(load-web-library :jquery)
+(load-web-library :jquery-sticky)
 
 ;;; generate urls for images
 (defpar image-data-sizes '(("original" . sig:original-path)
@@ -46,13 +45,19 @@
                                   (lambda () (handle-static-file #P"/home/olaf/Projekte/simple-image-gallery/green-squares.png" )))
          *dispatch-table*)
 
+#|(pushnew (create-regex-dispatcher "^/simple-gallery/image-grid\\.js$"
+                                  (lambda () (handle-static-file #P"/home/olaf/Projekte/simple-image-gallery/image-grid.js" )))
+         *dispatch-table*)|#
+
 
 (defmacro gallery-template ((&key title breadcrumb) &body body)
   `(html/document (:title ,title
                           :style "/simple-gallery/base.css"
                           :script "/scripts/jquery-1.10.2.min.js"
                           :script "/scripts/sticky/sticky.js"
-                          :style "/scripts/sticky/sticky.css")
+                          :style "/scripts/sticky/sticky.css"
+                          ;; :script "/simple-gallery/image-grid.js"
+                          )
      (:img :class "header-image" :src "/simple-gallery/green-squares.png")
      (:h1 (esc ,title))
      ,@body))
