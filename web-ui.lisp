@@ -45,18 +45,19 @@
                                   (lambda () (handle-static-file #P"/home/olaf/Projekte/simple-image-gallery/green-squares.png" )))
          *dispatch-table*)
 
-#|(pushnew (create-regex-dispatcher "^/simple-gallery/image-grid\\.js$"
+(pushnew (create-regex-dispatcher "^/simple-gallery/image-grid\\.js$"
                                   (lambda () (handle-static-file #P"/home/olaf/Projekte/simple-image-gallery/image-grid.js" )))
-         *dispatch-table*)|#
+         *dispatch-table*)
 
 
 (defmacro gallery-template ((&key title breadcrumb) &body body)
+  "Main html document layout for all webpages of the simple gallery."
   `(html/document (:title ,title
                           :style "/simple-gallery/base.css"
                           :script "/scripts/jquery-1.10.2.min.js"
                           :script "/scripts/sticky/sticky.js"
                           :style "/scripts/sticky/sticky.css"
-                          ;; :script "/simple-gallery/image-grid.js"
+                          :script "/simple-gallery/image-grid.js"
                           )
      (:img :class "header-image" :src "/simple-gallery/green-squares.png")
      (:h1 (esc ,title))
