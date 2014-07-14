@@ -31,9 +31,19 @@ function alignGrid(grid) {
   }
 }
 
+var processResize = false;
+
 $(document).ready(function() {
   var $grid = $(".image-grid");
   if ($grid.length) {
     alignGrid($grid);
+    $(window).resize(function() {
+      if( !processResize ) {
+        processResize = true;
+        console.log("processing resize event");
+        alignGrid($grid);
+        processResize = false;
+      }
+    });
   }
 });
