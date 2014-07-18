@@ -2,8 +2,6 @@
   :depends-on (ol-utils
                cl-fad
                iterate
-               hunchentoot
-               cl-who
                web-utils
                css-lite
                clon

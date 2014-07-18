@@ -1,8 +1,5 @@
 (in-package :simple-image-gallery-web)
 
-(load-web-library :jquery)
-(load-web-library :jquery-sticky)
-
 ;;; generate urls for images
 (defpar image-data-sizes '(("original" . sig:original-path)
                            ("slideshow" . sig:slideshow-path)
@@ -53,10 +50,9 @@
 (defmacro gallery-template ((&key title breadcrumb) &body body)
   "Main html document layout for all webpages of the simple gallery."
   `(html/document (:title ,title
+                          :library :jquery
+                          :library :jquery-sticky
                           :style "/simple-gallery/base.css"
-                          :script "/scripts/jquery-1.10.2.min.js"
-                          :script "/scripts/sticky/sticky.js"
-                          :style "/scripts/sticky/sticky.css"
                           :script "/simple-gallery/image-grid.js"
                           )
      (:img :class "header-image" :src "/simple-gallery/green-squares.png")
