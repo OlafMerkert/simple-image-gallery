@@ -1,12 +1,15 @@
+// how much space to leave between the images
+var spacing = 5;
+
 function alignGrid(grid) {
   var links = grid.find("a");
   var availWidth = grid.width();
   var pos = grid.offset();
-  var spacing = 9;
   /* compute the maximal widths of the images to determine the number of columns */
-  var maxWidth = Math.max.apply(Math, links.map(function(i, l) { 
-    return $(l).width(); 
-  }));
+  var maxWidth = spacing + Math.max.apply(Math,
+                                          links.map(function(i, l) {
+                                            return $(l).width();
+                                          }));
   var columns = Math.floor(availWidth / maxWidth);
   // iterate over rows
   var rows = Math.ceil(links.length / columns);

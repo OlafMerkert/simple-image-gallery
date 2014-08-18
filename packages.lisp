@@ -30,13 +30,14 @@
    #:datetime
    #:protected-p
    #:protection-identifier
-   #:image-dimensions))
+   #:image-dimensions
+   #:image-name))
 
 (defpackage :simple-image-gallery-web
   (:nicknames :sig-web)
-  (:use :cl :ol
+  (:use :cl :ol :iterate
         :web-utils
-        :cl-who
+        :cl-who :bootstrap
         :hunchentoot
         :css-lite)
   (:export))

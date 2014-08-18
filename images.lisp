@@ -97,6 +97,9 @@
     (elt (image-sequence gallery) previous)))
 
 ;;; metadata about the images
+(defmethod image-name ((image image))
+  (mkstr (identifier image)))
+
 (defmethod original-image-size ((image image))
   (if (slot-boundp image 'original-image-size)
       #1=(slot-value image 'original-image-size)

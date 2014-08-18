@@ -3,7 +3,7 @@
 ** DONE Gallery overview
    SCHEDULED: <2014-04-27 So>
 *** DONE thumbnails of all images per gallery
-**** TODO center alignment of images?
+**** DONE center alignment of images?
 *** TODO download the entire gallery
 ** DONE Gallery slideshow
 *** DONE large view of single image
@@ -79,6 +79,8 @@ generation of thumbnails could be done as needed, or once at import time
 ** DONE generating thumbnail file names
    SCHEDULED: <2014-04-27 So>
 * Tasks
+** DONE styling to use bootstrap
+   SCHEDULED: <2014-08-12 Di>
 ** TODO use something safer than =read=
    [2014-04-27 So 11:22]
    [[file:~/Projekte/simple-image-gallery/galleries.lisp::(plist-bind%20(title%20description%20last-updated%20images)%20(rest%20(read-file-1%20sexp-file))][file:~/Projekte/simple-image-gallery/galleries.lisp::(plist-bind (title description last-updated images) (rest (read-file-1 sexp-file))]]

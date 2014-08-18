@@ -49,51 +49,50 @@
 
 (defmacro gallery-template ((&key title breadcrumb) &body body)
   "Main html document layout for all webpages of the simple gallery."
-  `(html/document (:title ,title
-                          :library :jquery
-                          :library :jquery-sticky
-                          :style "/simple-gallery/base.css"
-                          :script "/simple-gallery/image-grid.js"
-                          )
-     (:img :class "header-image" :src "/simple-gallery/green-squares.png")
-     (:h1 (esc ,title))
-     ,@body))
+  `(html/document+bs (:title ,title
+                        :script "/simple-gallery/image-grid.js"
+                        :style "/style/bootstrap-nonav.css")
+     ;; todo might we have some use for a navbar -> new keyword
+     ;; argument
+     ,(when breadcrumb `(render-breadcrumb ,breadcrumb))
+     (bs-body
+      (:h1 (esc ,title))
+      ,@body)))
 
 (defun render-breadcrumb (alist)
   "Generate Hierarchy navigation, expect an list of `(url . title)'."
-  (html/node
-    (:div :class "breadcrumb"
-          " [ "
-          (let ((first t))
-            (dolist (br alist)
-              (if first
-                  (setf first nil)
-                  (htm " / "))
-              (htm 
-               (:a :href (car br) (esc (cdr br)))
-               )))
-          " ] ")))
+  (apply #'breadcrumbs (iter (for br in alist)
+                             (collect (car br))
+                             (collect (cdr br)))))
 
-(defpar top-breadcrumb '("/simple-gallery" . "All Galleries"))
+(defpar top-breadcrumb '(("/simple-gallery" . "Image Galleries")))
 
 (defun fmt-universal-time (time)
   "Convert a timestamp into a pretty string."
   (local-time:format-timestring nil (local-time:universal-to-timestamp time)
-                                :format '(:short-weekday " " :short-month " " :day ". " :year ", " :hour ":" :min)))
+                                :format '(:short-weekday " " :short-month " " :day ". " :year ", " :hour  ":" (:min 2))))
 
 (defun gallery-login (password message)
   "Display and process a password prompt form. Return `:success' if
 the user supplies `password'. For customisation, we show `message' at
 the top of the form."
   (flet ((password-form (&key wrong-password)
-           (gallery-template (:title "Simple Image Gallery - Login")
-             (:p (esc message))
-             (:form :method "post" :action ""
-                    (when wrong-password
-                      (htm (:p :class "warning" "Wrong password - please try again.")))
-                    (:label :for "password" "Gallery password:") " "
-                    (:input :name "password" :type "password" :value "")
-                    (:input :type "submit" :value "Login")))))
+           (gallery-template (:title "Simple Image Gallery - Login"
+                                :breadcrumb top-breadcrumb)
+             (:p :class "user-info bg-info text-info" (esc message))
+             (:form :role "form"
+                :method "post" :action ""
+                    
+                (:div :class (if wrong-password "form-group has-error" "form-group")
+                   (:label :for "password" "Gallery password:") " "
+                   (:input :name "password" :type "password" :value ""
+                      :class "form-control")
+                   (when wrong-password
+                      (htm (:span :class "help-block" "Wrong password - please try again."))))
+                (:div :class "form-group"
+                   (:button :type "submit"
+                      :class "btn btn-default"
+                      "Login"))))))
     (let ((password-param (post-parameter "password")))
       (if (and (stringp password-param) (not (length=0 password-param)))
           (if (string= password-param password)
@@ -145,11 +144,15 @@ and no yet authorised."
 
 (defun gallery-list ()
   "Display a list of all known galleries"
-  (gallery-template (:title "Simple Image Gallery - Overview")
-    (:ul
-     (dolist (g sig:*galleries*)
-       (htm (:li (:a :href (gallery-overview-url g)
-                     (esc (sig:title g)))
+  (gallery-template (:title "Simple Image Gallery - Overview"
+                       :breadcrumb (list (cons "#" (cdar top-breadcrumb))))
+    (:ul :class "bigger list-unstyled"
+       (dolist (g sig:*galleries*)
+         (htm (:li
+                 (:span :class "glyphicon glyphicon-picture"
+                    :style (inline-css :margin-right "1em")) 
+                 (:a :href (gallery-overview-url g)
+                    (esc (sig:title g)))
                  (:span :class "datetime" " (" (str (fmt-universal-time (sig:last-updated g))) ") ")
                  (when (sig:protected-p g)
                    (htm " " (:span :class "protected" "(password required)") " "))))))))
@@ -165,6 +168,9 @@ and no yet authorised."
           (with-protection/silent image
             (handle-static-file (funcall size image)))))))
 
+(defun unit (number &optional (unit 'px))
+  (format nil "~A~(~A~)" number unit))
+
 (defun gallery-overview ()
   "Display a grid of all images in a gallery"
   (ppcre:register-groups-bind (gal-id) (gallery-overview-regex (url-decode (script-name*)))
@@ -172,50 +178,57 @@ and no yet authorised."
       (if (not gallery)
           (error-code)
           (with-protection gallery
-            (gallery-template (:title (sig:title gallery))
-              (render-breadcrumb (list top-breadcrumb))
-              (:p :class "gallery-description"
-                  (esc (sig:description gallery)))
+            (gallery-template (:title (sig:title gallery)
+                                 :breadcrumb (append1 top-breadcrumb
+                                                      (cons "#" (sig:title gallery))))
+              (:p :style (inline-css :margin-bottom "1em")
+                 (esc (sig:description gallery)))
               (:div :class "image-grid"
-                    (map nil
-                         (lambda (image)
-                           (htm (:a :href (image-slideshow-url image)
-                                    (:img :src (image-data-url image "thumbnail")
-                                          :style (aif (sig:image-dimensions (sig:thumbnail-path image))
-                                                      (format nil "width: ~Apx; height: ~Apx;" (car it) (cdr it))
-                                                      "")))))
-                         (sig:image-sequence gallery)))))))))
+                 (map nil
+                      (lambda (image)
+                        (htm (:a :href (image-slideshow-url image)
+                                (:img :src (image-data-url image "thumbnail")
+                                   :class "img-thumbnail"
+                                   :style (aif (sig:image-dimensions (sig:thumbnail-path image))
+                                               (inline-css :width (unit (car it))
+                                                                    :height (unit (cdr it)))                                               
+                                               "")))))
+                      (sig:image-sequence gallery)))))))))
 
 (defun gallery-slideshow ()
   "Display a single image of a gallery"
   (ppcre:register-groups-bind (gal-id image-id)
       (gallery-slideshow-regex (url-decode (script-name*)))
-    (let ((image (sig:find-image-by-identifiers gal-id image-id)))
+    (let* ((image (sig:find-image-by-identifiers gal-id image-id))
+           (gallery (if image (sig:gallery image))))
       (if (not image)
           (error-code)
           (with-protection image
-            (gallery-template (:title (conc (sig:title (sig:gallery image)) " - Image "
-                                            (mkstr (+ 1 (sig:gallery-position image)))))
-              (let ((gallery (sig:gallery image)))
-                (render-breadcrumb (list top-breadcrumb (cons (conc "/simple-gallery/" (sig:identifier gallery))
-                                                              (sig:title gallery)))))
+            (gallery-template
+                (:title (conc (sig:title gallery) " - Image "
+                              (mkstr (+ 1 (sig:gallery-position image))))
+                   :breadcrumb (append top-breadcrumb
+                                       (list (cons (conc "/simple-gallery/" (sig:identifier gallery)) (sig:title gallery))
+                                             (cons "#" (sig:image-name image))))) 
               (:div :class "image-slideshow"
-                    (:a :class "slideshow-motion"
-                        :href (image-slideshow-url (sig:previous-image image))
-                        "Previous")
-                    "&nbsp;&nbsp;&nbsp;&nbsp;"
-                    (:a :class "slideshow-motion"
-                        :href (image-slideshow-url (sig:next-image image))
-                        "Next")
-                    (:br)
-                    (:span :class "datetime" " &nbsp; (" (str (fmt-universal-time (sig:datetime image))) ") ")
-                    (:br)
-                    (:a :href (gallery-overview-url image)
-                        (:img :src (image-data-url image "slideshow")))
-                    (:br)
+                 (:div :class "form-group"
+                    (:a :class "slideshow-motion btn btn-default"
+                       :href (image-slideshow-url (sig:previous-image image))
+                       "Previous")
+                    "&nbsp;"
+                    (:a :class "slideshow-motion btn btn-default"
+                       :href (image-slideshow-url (sig:next-image image))
+                       "Next")
+                    "&nbsp;" "&nbsp;"
+                    (:span :class "datetime btn btn-default text-right" :disabled "disabled"
+                       (str (fmt-universal-time (sig:datetime image)))))
+                 (:a :href (gallery-overview-url image)
+                    (:img :class "img-responsive img-thumbnail" :src (image-data-url image "slideshow")))
+                 
+                 (:p :class "text-center"
                     (:a :href (image-data-url image "original") :target "_blank"
-                        "Download original image")
-                    " [ " (esc (sig:format-file-size (sig:original-image-size image))) " ] ")))))))
+                       "Download original image")
+                    " [ " (esc (sig:format-file-size (sig:original-image-size image))) " ] "))))))))
 
 ;;; CSS stylesheet
 (pushnew (create-regex-dispatcher "^/simple-gallery/base\\.css$" 'simple-gallery-css)
