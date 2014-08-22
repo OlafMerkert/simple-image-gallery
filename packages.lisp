@@ -38,7 +38,9 @@
    #:sub-objects
    #:find-sub-object
    #:find-object
-   #:find-object-hierarchy))
+   #:find-object-hierarchy
+   #:object-hierarchy
+   #:abstract-gallery))
 
 (defpackage :simple-image-gallery-web
   (:nicknames :sig-web)
@@ -48,5 +50,6 @@
         :hunchentoot
         :css-lite
         :split-sequence)
-  (:export))
+  (:export
+   #:object-hierarchy))
 

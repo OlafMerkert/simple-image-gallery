@@ -10,12 +10,13 @@
                zpb-exif
                local-time
                cl-gd
-               split-sequence)
+               split-sequence
+               rutils)
     :serial t
     :components ((:file "packages")
                  (:file "utils")
                  (:file "hierarchy")
                  (:file "images")
                  (:file "galleries")
-                 (:file "flie-formats")
+                 (:file "file-formats")
                  (:file "web-ui")))

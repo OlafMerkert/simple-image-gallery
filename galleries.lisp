@@ -11,8 +11,11 @@
                    :initform #()
                    :reader image-sequence)
    (gallery-sequence :initarg :gallery-sequence
-         :initform #()
-         :reader gallery-sequence))
+                     :initform #()
+                     :reader gallery-sequence)
+   (last-updated :initarg :last-updated
+                 :initform nil
+                 :reader last-updated))
   (:documentation "TODO"))
 
 (defmethod initialize-instance :after  ((abstract-gallery abstract-gallery) &key)
@@ -93,6 +96,10 @@
 
 (defmethod title ((object (eql 'gallery-root)))
   "Image Galleries")
+
+(defmethod identifier ((object (eql 'gallery-root)))
+  "/simple-gallery")
+
 
 (defmethod protected-p ((object (eql 'gallery-root))) nil)
 

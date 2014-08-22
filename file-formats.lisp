@@ -11,14 +11,14 @@
             (remove-if-not #'fad:directory-pathname-p (fad:list-directory dir)))
           gallery-folders))
 
-
 (define-condition missing-gallery-file (warning)
   ((gallery-path :initarg :gallery-path
                  :initform nil
                  :reader gallery-path)))
 
 (defun gallery-compute-date (gallery)
-  (reduce #'max (image-sequence gallery) :key #'datetime :initial-value 0))
+  (max (reduce #'max (image-sequence gallery) :key #'datetime :initial-value 0)
+       (reduce #'max (gallery-sequence gallery) :key #'last-updated :initial-value 0)))
 
 (defun gallery-from-path (gallery-path)
   "Look at the special file in the given `path', and create objects

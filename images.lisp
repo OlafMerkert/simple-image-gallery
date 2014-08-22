@@ -35,7 +35,8 @@
   nil)
 
 (defmethod title ((image image))
-  (mkstr (identifier image)))
+  #|(mkstr (identifier image))|#
+  (format nil "Image ~A" (+ 1 (gallery-position image))))
 
 (defmethod protected-p ((image image))
   (protected-p (gallery image)))

@@ -2,25 +2,22 @@
 
 (defgeneric present-object (object))
 
+(defun object-url (object)
+  (let ((hier (sig:object-hierarchy object)))
+    (rutils.string:strjoin #\/
+                           (mapcar #'sig:identifier hier))))
+
 ;;; generate urls for images
 (defpar image-data-sizes '(("original" . sig:original-path)
                            ("slideshow" . sig:slideshow-path)
                            ("thumbnail" . sig:thumbnail-path)))
 
 (defmethod image-data-url ((image sig:image) size)
-  (format nil "/simple-gallery/data/~A/~A/~A.jpg" size
-          (sig:identifier (sig:gallery image))
-          (sig:identifier image)))
-
-(defmethod image-slideshow-url ((image sig:image))
-  (conc "/simple-gallery/" (sig:identifier (sig:gallery image)) "/" (sig:identifier image)))
-
-(defmethod gallery-overview-url ((image sig:image))
-  (gallery-overview-url (sig:gallery image)))
-
-(defmethod gallery-overview-url ((gallery sig:gallery))
-  (conc "/simple-gallery/" (sig:identifier gallery) "/"))
-
+  (let ((hier (sig:object-hierarchy image)))
+    (format nil "/simple-gallery/data/~A/~A.jpg"
+            size
+            (rutils.string:strjoin #\/
+                                   (mapcar #'sig:identifier (rest hier))))))
 
 (pushnew (create-prefix-dispatcher "/simple-gallery" 'simple-gallery-dispatcher)
          *dispatch-table*)
@@ -52,33 +49,39 @@
            (let ((image (sig:find-object (nthcdr 2 identifier-list)))
                  (size  (assoc1 (second identifier-list) image-data-sizes nil :test #'string-equal)))
              (if (and size image (typep image 'sig:image))
-                 (handle-static-file (funcall size image))
+                 (with-protection/silent image
+                   (handle-static-file (funcall size image)))
                  (error-code))))
           (t (let ((object (sig:find-object identifier-list)))
                (if object
-                   (present-object object)
+                   (with-protection object
+                     (present-object/full object))
                    (error-code)))))))
-
 
 (defmacro gallery-template ((&key title breadcrumb) &body body)
   "Main html document layout for all webpages of the simple gallery."
-  `(html/document+bs (:title ,title
+  `(html/document+bs (:title (conc "Simple Image Gallery - ",title)
                         :script "/scripts/image-grid.js"
                         :style "/style/bootstrap-nonav.css")
      ;; todo might we have some use for a navbar -> new keyword
      ;; argument
-     ,(when breadcrumb `(render-breadcrumb ,breadcrumb))
+     ,(when breadcrumb `(apply #'breadcrumbs ,breadcrumb))
      (bs-body
       (:h1 (esc ,title))
       ,@body)))
 
-(defun render-breadcrumb (alist)
-  "Generate Hierarchy navigation, expect an list of `(url . title)'."
-  (apply #'breadcrumbs (iter (for br in alist)
-                             (collect (car br))
-                             (collect (cdr br)))))
+(defun hierarchy->breadcrumb (object)
+  (iter (for o in (sig:object-hierarchy object))
+        (collect (sig:identifier o) into parts)
+        (collect (rutils:strjoin #\/ parts) into breadcrumbs)
+        (collect (sig:title o) into breadcrumbs)
+        (finally (return breadcrumbs))))
 
-(defpar top-breadcrumb '(("/simple-gallery" . "Image Galleries")))
+(defun present-object/full (object)
+  (gallery-template (:title (sig:title object)
+                       :breadcrumb (hierarchy->breadcrumb object))
+    (present-object object)))
+
 
 (defun fmt-universal-time (time)
   "Convert a timestamp into a pretty string."
@@ -90,8 +93,8 @@
 the user supplies `password'. For customisation, we show `message' at
 the top of the form."
   (flet ((password-form (&key wrong-password)
-           (gallery-template (:title "Simple Image Gallery - Login"
-                                :breadcrumb top-breadcrumb)
+           (gallery-template (:title "Password required"
+                                :breadcrumb (hierarchy->breadcrumb 'sig:gallery-root))
              (:p :class "user-info bg-info text-info" (esc message))
              (:form :role "form"
                 :method "post" :action ""
@@ -101,7 +104,7 @@ the top of the form."
                    (:input :name "password" :type "password" :value ""
                       :class "form-control")
                    (when wrong-password
-                      (htm (:span :class "help-block" "Wrong password - please try again."))))
+                     (htm (:span :class "help-block" "Wrong password - please try again."))))
                 (:div :class "form-group"
                    (:button :type "submit"
                       :class "btn btn-default"
@@ -152,89 +155,70 @@ the top of the form."
 and no yet authorised."
   `(if (or (not (sig:protected-p ,g!object))
            (authorised-p ,g!object))
-       ,@body
+       (progn ,@body)
        (error-code hunchentoot:+http-forbidden+)))
 
-(defmethod present-object ((object (eql 'sig:gallery-root)))
-  "Display a list of all known galleries"
-  (gallery-template (:title "Simple Image Gallery - Overview"
-                       :breadcrumb (list (cons "#" (cdar top-breadcrumb))))
+(defun present-galleries (galleries)
+  (html/node
     (:ul :class "bigger list-unstyled"
-       (dolist (g sig:*galleries*)
+       (dolist (g galleries)
          (htm (:li
                  (:span :class "glyphicon glyphicon-picture"
                     :style (inline-css :margin-right "1em")) 
-                 (:a :href (gallery-overview-url g)
+                 (:a :href (object-url g)
                     (esc (sig:title g)))
                  (:span :class "datetime" " (" (str (fmt-universal-time (sig:last-updated g))) ") ")
                  (when (sig:protected-p g)
                    (htm " " (:span :class "protected" "(password required)") " "))))))))
 
-;; todo make compatible to hierarchy stuff
-(defun image-data-provider ()
-  "Serve the actual image files, of the various sizes defined in `image-data-sizes'."
-  (ppcre:register-groups-bind (size gal-id image-id)
-      (image-data-url-regex (url-decode (script-name*)))
-    (let ((size (assoc1 size image-data-sizes nil :test #'string-equal))
-          (image (sig:find-image-by-identifiers gal-id image-id)))
-      (if (not (and size image))
-          (error-code)
-          (with-protection/silent image
-            (handle-static-file (funcall size image)))))))
+(defmethod present-object ((object (eql 'sig:gallery-root)))
+  "Display a list of all known galleries"
+  (present-galleries (sig:sub-objects object)))
 
 (defun unit (number &optional (unit 'px))
   (format nil "~A~(~A~)" number unit))
 
-(defmethod present-object ((gallery sig:gallery))
+(defmethod present-object ((gallery sig:abstract-gallery))
   "Display a grid of all images in a gallery"
-  (if (not gallery)
-      (error-code)
-      (with-protection gallery
-        (gallery-template (:title (sig:title gallery)
-                             :breadcrumb (append1 top-breadcrumb
-                                                  (cons "#" (sig:title gallery))))
-          (:p :style (inline-css :margin-bottom "1em")
-             (esc (sig:description gallery)))
-          (:div :class "image-grid"
-             (map nil
-                  (lambda (image)
-                    (htm (:a :href (image-slideshow-url image)
-                            (:img :src (image-data-url image "thumbnail")
-                               :class "img-thumbnail"
-                               :style (aif (sig:image-dimensions (sig:thumbnail-path image))
-                                           (inline-css :width (unit (car it))
-                                                       :height (unit (cdr it)))                                               
-                                           "")))))
-                  (sig:image-sequence gallery)))))))
+  (html/node
+    (:p :style (inline-css :margin-bottom "1em")
+       (esc (sig:description gallery)))
+    ;; add a list of subgalleries (if there are any)
+    (let ((galleries (sig:sub-objects gallery 'sig:gallery)))
+      (unless (length=0 galleries)
+        (present-galleries galleries)))
+    ;; show a grid with all the images
+    (:div :class "image-grid"
+       (map nil
+            (lambda (image)
+              (htm (:a :href (object-url image)
+                      (:img :src (image-data-url image "thumbnail")
+                         :class "img-thumbnail"
+                         :style (aif (sig:image-dimensions (sig:thumbnail-path image))
+                                     (inline-css :width (unit (car it))
+                                                 :height (unit (cdr it)))                                               
+                                     "")))))
+            (sig:sub-objects gallery 'sig:image)))))
 
 (defmethod present-object ((image sig:image))
   "Display a single image of a gallery"
-  (let* ((gallery (if image (sig:gallery image))))
-    (if (not image)
-        (error-code)
-        (with-protection image
-          (gallery-template
-              (:title (conc (sig:title gallery) " - Image "
-                            (mkstr (+ 1 (sig:gallery-position image))))
-                 :breadcrumb (append top-breadcrumb
-                                     (list (cons (conc "/simple-gallery/" (sig:identifier gallery)) (sig:title gallery))
-                                           (cons "#" (sig:image-name image))))) 
-            (:div :class "image-slideshow"
-               (:div :class "form-group"
-                  (:a :class "slideshow-motion btn btn-default"
-                     :href (image-slideshow-url (sig:previous-image image))
-                     "Previous")
-                  "&nbsp;"
-                  (:a :class "slideshow-motion btn btn-default"
-                     :href (image-slideshow-url (sig:next-image image))
-                     "Next")
-                  "&nbsp;" "&nbsp;"
-                  (:span :class "datetime btn btn-default text-right" :disabled "disabled"
-                     (str (fmt-universal-time (sig:datetime image)))))
-               (:a :href (gallery-overview-url image)
-                  (:img :class "img-responsive img-thumbnail" :src (image-data-url image "slideshow")))
-               
-               (:p :class "text-center"
-                  (:a :href (image-data-url image "original") :target "_blank"
-                     "Download original image")
-                  " [ " (esc (sig:format-file-size (sig:original-image-size image))) " ] ")))))))
+  (html/node
+    (:div :class "image-slideshow"
+       (:div :class "form-group"
+          (:div :class "btn-group"
+             (:a :class "slideshow-motion btn btn-default"
+                :href (object-url (sig:previous-image image))
+                "Previous")
+             (:a :class "slideshow-motion btn btn-default"
+                :href (object-url (sig:next-image image))
+                "Next"))
+          "&nbsp;" "&nbsp;"
+          (:span :class "datetime btn btn-default text-right" :disabled "disabled"
+             (str (fmt-universal-time (sig:datetime image)))))
+       (:a :href (object-url (sig:gallery image))
+          (:img :class "img-responsive img-thumbnail" :src (image-data-url image "slideshow")))
+       
+       (:p :class "text-center"
+          (:a :href (image-data-url image "original") :target "_blank"
+             "Download original image")
+          " [ " (esc (sig:format-file-size (sig:original-image-size image))) " ] "))))
