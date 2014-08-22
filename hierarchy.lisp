@@ -15,7 +15,7 @@
 
 (defpar root-object 'gallery-root)
 
-
+;;; the functions that operate on top of the above interface
 (defun find-object (identifier-list &optional (object root-object))
   (if identifier-list
       (aif (find-sub-object (first identifier-list) object)
@@ -29,3 +29,8 @@
                       (find% (rest identifier-list) it (cons it object-list)))
                  (values object-list object))))
     (find% identifier-list object (list object))))
+
+(defun object-hierarchy (object &optional hierarchy)
+  (aif (super-object object)
+       (object-hierarchy it #1=(cons object hierarchy))
+       #1#))

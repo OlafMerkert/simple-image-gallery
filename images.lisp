@@ -94,7 +94,7 @@
     (elt (image-sequence gallery) previous)))
 
 ;;; metadata about the images
-(defmethod image-name ((image image))
+(defmethod title ((image image))
   (mkstr (identifier image)))
 
 (defmethod original-image-size ((image image))

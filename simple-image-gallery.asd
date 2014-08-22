@@ -17,4 +17,5 @@
                  (:file "hierarchy")
                  (:file "images")
                  (:file "galleries")
+                 (:file "flie-formats")
                  (:file "web-ui")))
