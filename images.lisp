@@ -1,5 +1,8 @@
 (in-package :simple-image-gallery)
 
+(defpar thumbnail-size 128)
+(defpar slideshow-size 1024)
+
 (defclass image (hierarchy-object)
   ((original-path :initarg :original-path
                   :initform nil
@@ -16,9 +19,23 @@
                      :initform 0
                      :reader gallery-position)
    (datetime :initform nil
-         :reader datetime))
+             :reader datetime))
   (:documentation "Keep track of filename and file locations. Later
   perhaps also cache EXIF metadata."))
+
+(defmethod super-object ((image image))
+  (gallery image))
+
+(defmethod sub-objects ((image image) &optional type)
+  (declare (ignore type))
+  #())
+
+(defmethod find-sub-object (identifier (image image) &optional type)
+  (declare (ignore type))
+  nil)
+
+(defmethod title ((image image))
+  (mkstr (identifier image)))
 
 (defmethod protected-p ((image image))
   (protected-p (gallery image)))
@@ -28,9 +45,6 @@
 
 (create-standard-print-object image identifier)
 
-(defpar thumbnail-size 128)
-
-(defpar slideshow-size 1024)
 
 (bind-multi ((thumbnail-path thumbnail-path slideshow-path)
              (thumbnail-size thumbnail-size slideshow-size))
@@ -46,12 +60,6 @@
         (ensure-directories-exist thumbnail-path)
         (im-convert original-path thumbnail-path thumbnail-size))
       thumbnail-path)))
-
-(defun image-from-path (pathname gallery &optional (position 0))
-  (make-instance 'image :original-path pathname
-                 :gallery gallery
-                 :gallery-position position
-                 :identifier (pathname-name pathname)))
 
 ;;; downsizing images with imagemagick
 (defun im-convert (source target size)
@@ -94,10 +102,8 @@
     (elt (image-sequence gallery) previous)))
 
 ;;; metadata about the images
-(defmethod title ((image image))
-  (mkstr (identifier image)))
-
 (defmethod original-image-size ((image image))
+  "By size we mean the filesize, in case somebody wants to download this file."
   (if (slot-boundp image 'original-image-size)
       #1=(slot-value image 'original-image-size)
       (setf #1# (ql-util:file-size (original-path image)))))
@@ -108,6 +114,7 @@
           (cl-gd:image-height))))
 
 (defun image-dimensions (pathname)
+  "How wide and high is the image at the given `pathname'."
   (when (fad:file-exists-p pathname)
     (image-dimensions% pathname)))
 

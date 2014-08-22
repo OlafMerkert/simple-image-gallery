@@ -40,6 +40,13 @@ for the gallery and the images it contains."
             (setf (slot-value it 'last-updated)
                   (gallery-compute-date it))))
         (warn 'missing-gallery-file :gallery-path gallery-path))))
+;; todo support for nested galleries
+
+(defun image-from-path (pathname gallery &optional (position 0))
+  (make-instance 'image :original-path pathname
+                 :gallery gallery
+                 :gallery-position position
+                 :identifier (pathname-name pathname)))
 
 (defun generate-galleries ()
   (sort 

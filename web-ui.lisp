@@ -131,16 +131,16 @@ the top of the form."
 (defun with-protection% (object body-function)
   "Backing function for `with-protection'."
   (if (and (sig:protected-p object)
-              (not (authorised-p object)))
-         ;; produce the login form
-         (let ((lf (gallery-login (sig:protected-p object) "This gallery is protected by a password.")))
-           (if (eq lf :success)
-               (progn
-                 (authorise object)
-                 (funcall body-function))
-               lf))
-         ;; provide the page content
-         (funcall body-function)))
+           (not (authorised-p object)))
+      ;; produce the login form
+      (let ((lf (gallery-login (sig:protected-p object) "This gallery is protected by a password.")))
+        (if (eq lf :success)
+            (progn
+              (authorise object)
+              (funcall body-function))
+            lf))
+      ;; provide the page content
+      (funcall body-function)))
 
 (defmacro! with-protection (object &body body)
   "Helper macro, which causes a password prompt to be shown if the

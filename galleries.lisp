@@ -31,11 +31,14 @@
 (defclass sub-gallery (abstract-gallery)
   ((parent-gallery :initarg :parent-gallery
          :initform nil
-         :reader super-object))
+         :reader parent-gallery))
   (:documentation "TODO"))
 
 (defmethod super-object ((gallery gallery))
   root-object)
+
+(defmethod super-object ((sub-gallery sub-gallery))
+  (parent-gallery sub-gallery))
 
 (defmethod sub-objects ((gallery abstract-gallery) &optional type)
   (case type
@@ -45,13 +48,31 @@
                         (gallery-sequence gallery)
                         (image-sequence gallery)))))
 
+(defmethod find-sub-object ((identifier string) (gallery abstract-gallery) &optional type)
+  (case type
+    ((image)
+     #1=(find identifier (image-sequence gallery) :key #'identifier :test #'string=))
+    ((gallery)
+     #2=(find identifier (gallery-sequence gallery) :key #'identifier :test #'string=))
+    ((nil) (or #1# #2#))))
+
+(defmethod find-sub-object ((index integer) (gallery abstract-gallery) &optional type)
+  (case type
+    ((nil image)
+     (aref (image-sequence gallery) index))
+    ((gallery)
+     (aref (gallery-sequence gallery) index))))
+
 (defmethod protected-p ((gallery gallery))
   (password gallery))
 
-(defmethod protection-identifier ((gallery gallery))
-  gallery)
+(defmethod protection-identifier ((sub-gallery sub-gallery))
+  (aif (super-object sub-gallery) (protection-identifier it)))
 
-(create-standard-print-object gallery identifier)
+(defmethod protected-p ((sub-gallery sub-gallery))
+  (aif (super-object sub-gallery) (protected-p it)))
+
+(create-standard-print-object abstract-gallery identifier)
 
 (defvar *galleries* nil
   ;;(generate-galleries)
@@ -61,8 +82,9 @@
 ;; implementation for the root-object
 (defmethod super-object ((object (eql 'gallery-root))) nil)
 
-(defmethod sub-objects ((object (eql 'gallery-root)))
-  *galleries*)
+(defmethod sub-objects ((object (eql 'gallery-root)) &optional type)
+  (case type
+    ((nil gallery) *galleries*)))
 
 (defmethod find-sub-object ((identifier string) (object (eql 'gallery-root)) &optional type)
   (case type
@@ -72,15 +94,10 @@
 (defmethod title ((object (eql 'gallery-root)))
   "Image Galleries")
 
-;; todo move up
-(defmethod find-sub-object ((identifier string) (gallery gallery) &optional type)
-  (case type
-    ((nil image)
-     (find identifier (image-sequence gallery) :key #'identifier :test #'string=))))
+(defmethod protected-p ((object (eql 'gallery-root))) nil)
 
-(defmethod find-sub-object ((index integer) (gallery gallery) &optional type)
-  (case type
-    ((nil image)
-     (aref (image-sequence gallery) index))))
+;; todo move up
+
+
 
 
