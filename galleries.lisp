@@ -15,6 +15,9 @@
          :reader gallery-sequence))
   (:documentation "TODO"))
 
+(defmethod initialize-instance :after  ((abstract-gallery abstract-gallery) &key)
+  (if (string-equal (identifier abstract-gallery) "data")
+      (warn "Galleries with name \"data\" cannot be accessed from the web interface.")))
 
 (defclass gallery (abstract-gallery)
   ((password :initarg :password
@@ -98,30 +101,26 @@ for the gallery and the images it contains."
                           :name "Simple Gallery scan for galleries"
                           :thread t))
 
+;; implementation for the root-object
 (defmethod super-object ((object (eql 'gallery-root))) nil)
 
 (defmethod sub-objects ((object (eql 'gallery-root)))
   *galleries*)
 
-(defmethod find-sub-object (identifier (object (eql 'gallery-root)) &optional type)
+(defmethod find-sub-object ((identifier string) (object (eql 'gallery-root)) &optional type)
   (case type
     ((nil gallery)
      (find identifier *galleries* :key #'identifier :test #'string=))))
 
-
-(defun find-gallery-by-identifier (identifier)
-  (warn "deprecated")
-  (find-sub-object identifier root-object))
-
-(defun find-image-by-identifiers (gallery-identifier image-identifier)
-  (warn "deprecated")
-  (find-object (list gallery-identifier image-identifier)))
-
 ;; todo move up
-(defmethod find-sub-object (identifier (gallery gallery) &optional type)
+(defmethod find-sub-object ((identifier string) (gallery gallery) &optional type)
   (case type
     ((nil image)
      (find identifier (image-sequence gallery) :key #'identifier :test #'string=))))
 
+(defmethod find-sub-object ((index integer) (gallery gallery) &optional type)
+  (case type
+    ((nil image)
+     (aref (image-sequence gallery) index))))
 
 

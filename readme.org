@@ -96,8 +96,8 @@ but only if protection level allows access
 ***** TODO title
 ***** TODO anonymous root object
 ***** TODO subobject searching
-+ [ ] index
-+ [ ] identifier
++ [X] index
++ [X] identifier
 ***** TODO link generation
 * Tasks [8/12]
 ** DONE styling to use bootstrap
@@ -141,7 +141,5 @@ this could go in a popup
 ** TODO portrait images are scaled down less than landscape ones
    [2014-06-27 Fr 11:53]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp:::min-width%20"600px"][file:~/Projekte/simple-image-gallery/web-ui.lisp:::min-width "600px"]]
-* Tasks
-** TODO disallow gallery name "data"
+** DONE disallow gallery name "data"
    [2014-08-22 Fr 12:14]
-   [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(defpar%20image-data-url-regex%20"/simple-gallery/data/(%5B^/%5D%2B)/(%5B^/%5D%2B)/(%5B^/%5D%2B)\\.(%5B^/.%5D%2B)")][file:~/Projekte/simple-image-gallery/web-ui.lisp::(defpar image-data-url-regex "/simple-gallery/data/([^/]+)/([^/]+)/([^/]+)\\.([^/.]+)")]]
