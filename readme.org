@@ -78,7 +78,7 @@ generation of thumbnails could be done as needed, or once at import time
 *** TODO creating zip files, and providing download links
 ** DONE generating thumbnail file names
    SCHEDULED: <2014-04-27 So>
-** TODO support for (mostly) arbitrary hierarchical structure
+** TODO support for (mostly) arbitrary hierarchical structure [0%]
 *** TODO subgalleries
     SCHEDULED: <2014-08-22 Fr>
 *** TODO datastructure support
@@ -88,7 +88,7 @@ generation of thumbnails could be done as needed, or once at import time
 when traversing down the object tree, check for authorisation at every point
 this would for instance allow double password protection, which would require a sane kind of support in the UI
 *** TODO uniform rendering interface for galleries
-**** TODO provide web interface requirements
+**** TODO provide web interface requirements [0%]
 ***** TODO breadcrumbs
 ***** TODO thumbnails
 but only if protection level allows access
@@ -99,7 +99,7 @@ but only if protection level allows access
 + [ ] index
 + [ ] identifier
 ***** TODO link generation
-* Tasks
+* Tasks [8/12]
 ** DONE styling to use bootstrap
    SCHEDULED: <2014-08-12 Di>
 ** TODO use something safer than =read=
@@ -141,3 +141,7 @@ this could go in a popup
 ** TODO portrait images are scaled down less than landscape ones
    [2014-06-27 Fr 11:53]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp:::min-width%20"600px"][file:~/Projekte/simple-image-gallery/web-ui.lisp:::min-width "600px"]]
+* Tasks
+** TODO disallow gallery name "data"
+   [2014-08-22 Fr 12:14]
+   [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(defpar%20image-data-url-regex%20"/simple-gallery/data/(%5B^/%5D%2B)/(%5B^/%5D%2B)/(%5B^/%5D%2B)\\.(%5B^/.%5D%2B)")][file:~/Projekte/simple-image-gallery/web-ui.lisp::(defpar image-data-url-regex "/simple-gallery/data/([^/]+)/([^/]+)/([^/]+)\\.([^/.]+)")]]

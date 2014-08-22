@@ -1,5 +1,7 @@
 (in-package :simple-image-gallery-web)
 
+(defgeneric present-object (object))
+
 ;;; generate urls for images
 (defpar image-data-sizes '(("original" . sig:original-path)
                            ("slideshow" . sig:slideshow-path)
@@ -19,38 +21,34 @@
 (defmethod gallery-overview-url ((gallery sig:gallery))
   (conc "/simple-gallery/" (sig:identifier gallery) "/"))
 
-;; regular expressions and dispatchers
-(defpar image-data-url-regex "/simple-gallery/data/([^/]+)/([^/]+)/([^/]+)\\.([^/.]+)")
 
-(defpar gallery-overview-regex "^/simple-gallery/([^/?&]+)/?$")
-
-(defpar gallery-slideshow-regex "^/simple-gallery/([^/?&]+)/([^/?&]+)/?$")
-
-(pushnew (create-regex-dispatcher "^/simple-gallery/?$" 'gallery-list)
+(pushnew (create-prefix-dispatcher "/simple-gallery" 'simple-gallery-dispatcher)
          *dispatch-table*)
 
-(pushnew (create-regex-dispatcher image-data-url-regex 'image-data-provider)
-         *dispatch-table*)
-
-(pushnew (create-regex-dispatcher gallery-overview-regex 'gallery-overview)
-         *dispatch-table*)
-
-(pushnew (create-regex-dispatcher gallery-slideshow-regex 'gallery-slideshow)
-         *dispatch-table*)
-
-(pushnew (create-regex-dispatcher "^/simple-gallery/green-squares\\.png$"
-                                  (lambda () (handle-static-file #P"/home/olaf/Projekte/simple-image-gallery/green-squares.png" )))
-         *dispatch-table*)
-
-(pushnew (create-regex-dispatcher "^/simple-gallery/image-grid\\.js$"
+(pushnew (create-regex-dispatcher "^/scripts/image-grid\\.js$"
                                   (lambda () (handle-static-file #P"/home/olaf/Projekte/simple-image-gallery/image-grid.js" )))
          *dispatch-table*)
+
+(defun simple-gallery-dispatcher ()
+  (let* ((identifier-list (rest (split-sequence #\/ (url-decode (script-name*))
+                                                :remove-empty-subseqs t))))
+    ;; todo check if authorised
+    (cond ((string-equal (first identifier-list) "data")
+           (let ((image (sig:find-object (nthcdr 2 identifier-list)))
+                 (size  (assoc1 (second identifier-list) image-data-sizes nil :test #'string-equal)))
+             (if (and size image (typep image 'sig:image))
+                 (handle-static-file (funcall size image))
+                 (error-code))))
+          (t (let ((object (sig:find-object identifier-list)))
+               (if object
+                   (present-object object)
+                   (error-code)))))))
 
 
 (defmacro gallery-template ((&key title breadcrumb) &body body)
   "Main html document layout for all webpages of the simple gallery."
   `(html/document+bs (:title ,title
-                        :script "/simple-gallery/image-grid.js"
+                        :script "/scripts/image-grid.js"
                         :style "/style/bootstrap-nonav.css")
      ;; todo might we have some use for a navbar -> new keyword
      ;; argument
@@ -142,7 +140,7 @@ and no yet authorised."
        ,@body
        (error-code hunchentoot:+http-forbidden+)))
 
-(defun gallery-list ()
+(defmethod present-object ((object (eql 'sig:gallery-root)))
   "Display a list of all known galleries"
   (gallery-template (:title "Simple Image Gallery - Overview"
                        :breadcrumb (list (cons "#" (cdar top-breadcrumb))))
@@ -157,6 +155,7 @@ and no yet authorised."
                  (when (sig:protected-p g)
                    (htm " " (:span :class "protected" "(password required)") " "))))))))
 
+;; todo make compatible to hierarchy stuff
 (defun image-data-provider ()
   "Serve the actual image files, of the various sizes defined in `image-data-sizes'."
   (ppcre:register-groups-bind (size gal-id image-id)
@@ -171,61 +170,56 @@ and no yet authorised."
 (defun unit (number &optional (unit 'px))
   (format nil "~A~(~A~)" number unit))
 
-(defun gallery-overview ()
+(defmethod present-object ((gallery sig:gallery))
   "Display a grid of all images in a gallery"
-  (ppcre:register-groups-bind (gal-id) (gallery-overview-regex (url-decode (script-name*)))
-    (let ((gallery (sig:find-gallery-by-identifier gal-id)))
-      (if (not gallery)
-          (error-code)
-          (with-protection gallery
-            (gallery-template (:title (sig:title gallery)
-                                 :breadcrumb (append1 top-breadcrumb
-                                                      (cons "#" (sig:title gallery))))
-              (:p :style (inline-css :margin-bottom "1em")
-                 (esc (sig:description gallery)))
-              (:div :class "image-grid"
-                 (map nil
-                      (lambda (image)
-                        (htm (:a :href (image-slideshow-url image)
-                                (:img :src (image-data-url image "thumbnail")
-                                   :class "img-thumbnail"
-                                   :style (aif (sig:image-dimensions (sig:thumbnail-path image))
-                                               (inline-css :width (unit (car it))
-                                                                    :height (unit (cdr it)))                                               
-                                               "")))))
-                      (sig:image-sequence gallery)))))))))
+  (if (not gallery)
+      (error-code)
+      (with-protection gallery
+        (gallery-template (:title (sig:title gallery)
+                             :breadcrumb (append1 top-breadcrumb
+                                                  (cons "#" (sig:title gallery))))
+          (:p :style (inline-css :margin-bottom "1em")
+             (esc (sig:description gallery)))
+          (:div :class "image-grid"
+             (map nil
+                  (lambda (image)
+                    (htm (:a :href (image-slideshow-url image)
+                            (:img :src (image-data-url image "thumbnail")
+                               :class "img-thumbnail"
+                               :style (aif (sig:image-dimensions (sig:thumbnail-path image))
+                                           (inline-css :width (unit (car it))
+                                                       :height (unit (cdr it)))                                               
+                                           "")))))
+                  (sig:image-sequence gallery)))))))
 
-(defun gallery-slideshow ()
+(defmethod present-object ((image sig:image))
   "Display a single image of a gallery"
-  (ppcre:register-groups-bind (gal-id image-id)
-      (gallery-slideshow-regex (url-decode (script-name*)))
-    (let* ((image (sig:find-image-by-identifiers gal-id image-id))
-           (gallery (if image (sig:gallery image))))
-      (if (not image)
-          (error-code)
-          (with-protection image
-            (gallery-template
-                (:title (conc (sig:title gallery) " - Image "
-                              (mkstr (+ 1 (sig:gallery-position image))))
-                   :breadcrumb (append top-breadcrumb
-                                       (list (cons (conc "/simple-gallery/" (sig:identifier gallery)) (sig:title gallery))
-                                             (cons "#" (sig:image-name image))))) 
-              (:div :class "image-slideshow"
-                 (:div :class "form-group"
-                    (:a :class "slideshow-motion btn btn-default"
-                       :href (image-slideshow-url (sig:previous-image image))
-                       "Previous")
-                    "&nbsp;"
-                    (:a :class "slideshow-motion btn btn-default"
-                       :href (image-slideshow-url (sig:next-image image))
-                       "Next")
-                    "&nbsp;" "&nbsp;"
-                    (:span :class "datetime btn btn-default text-right" :disabled "disabled"
-                       (str (fmt-universal-time (sig:datetime image)))))
-                 (:a :href (gallery-overview-url image)
-                    (:img :class "img-responsive img-thumbnail" :src (image-data-url image "slideshow")))
-                 
-                 (:p :class "text-center"
-                    (:a :href (image-data-url image "original") :target "_blank"
-                       "Download original image")
-                    " [ " (esc (sig:format-file-size (sig:original-image-size image))) " ] "))))))))
+  (let* ((gallery (if image (sig:gallery image))))
+    (if (not image)
+        (error-code)
+        (with-protection image
+          (gallery-template
+              (:title (conc (sig:title gallery) " - Image "
+                            (mkstr (+ 1 (sig:gallery-position image))))
+                 :breadcrumb (append top-breadcrumb
+                                     (list (cons (conc "/simple-gallery/" (sig:identifier gallery)) (sig:title gallery))
+                                           (cons "#" (sig:image-name image))))) 
+            (:div :class "image-slideshow"
+               (:div :class "form-group"
+                  (:a :class "slideshow-motion btn btn-default"
+                     :href (image-slideshow-url (sig:previous-image image))
+                     "Previous")
+                  "&nbsp;"
+                  (:a :class "slideshow-motion btn btn-default"
+                     :href (image-slideshow-url (sig:next-image image))
+                     "Next")
+                  "&nbsp;" "&nbsp;"
+                  (:span :class "datetime btn btn-default text-right" :disabled "disabled"
+                     (str (fmt-universal-time (sig:datetime image)))))
+               (:a :href (gallery-overview-url image)
+                  (:img :class "img-responsive img-thumbnail" :src (image-data-url image "slideshow")))
+               
+               (:p :class "text-center"
+                  (:a :href (image-data-url image "original") :target "_blank"
+                     "Download original image")
+                  " [ " (esc (sig:format-file-size (sig:original-image-size image))) " ] ")))))))

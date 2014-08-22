@@ -1,24 +1,25 @@
 (in-package :simple-image-gallery)
 
-(defclass gallery ()
-  ((identifier :initarg :identifier
-               :initform ""
-               :reader identifier)
-   (title :initarg :title
+(defclass abstract-gallery (hierarchy-object)
+  ((title :initarg :title
           :initform ""
           :reader title)
    (description :initarg :description
                 :initform ""
                 :reader description)
-   (password :initarg :password
-             :initform nil
-             :reader password)
-   (last-updated :initarg :last-updated
-                 :initform nil
-                 :reader last-updated)
    (image-sequence :initarg :image-sequence
                    :initform #()
-                   :reader image-sequence))
+                   :reader image-sequence)
+   (gallery-sequence :initarg :gallery-sequence
+         :initform #()
+         :reader gallery-sequence))
+  (:documentation "TODO"))
+
+
+(defclass gallery (abstract-gallery)
+  ((password :initarg :password
+             :initform nil
+             :reader password))
   (:documentation "A gallery has just a title, description and
   describes a sequence of images. There may also be some date
   information, and we use the folder name as identifier (this also
@@ -97,12 +98,30 @@ for the gallery and the images it contains."
                           :name "Simple Gallery scan for galleries"
                           :thread t))
 
+(defmethod super-object ((object (eql 'gallery-root))) nil)
+
+(defmethod sub-objects ((object (eql 'gallery-root)))
+  *galleries*)
+
+(defmethod find-sub-object (identifier (object (eql 'gallery-root)) &optional type)
+  (case type
+    ((nil gallery)
+     (find identifier *galleries* :key #'identifier :test #'string=))))
+
 
 (defun find-gallery-by-identifier (identifier)
-  (find identifier *galleries* :key #'identifier :test #'string=))
+  (warn "deprecated")
+  (find-sub-object identifier root-object))
 
 (defun find-image-by-identifiers (gallery-identifier image-identifier)
-  (aif (find-gallery-by-identifier gallery-identifier)
-       (find image-identifier (image-sequence it) :key #'identifier :test #'string=)))
+  (warn "deprecated")
+  (find-object (list gallery-identifier image-identifier)))
+
+;; todo move up
+(defmethod find-sub-object (identifier (gallery gallery) &optional type)
+  (case type
+    ((nil image)
+     (find identifier (image-sequence gallery) :key #'identifier :test #'string=))))
+
 
 

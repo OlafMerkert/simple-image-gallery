@@ -9,10 +9,12 @@
                parenscript
                zpb-exif
                local-time
-               cl-gd)
+               cl-gd
+               split-sequence)
     :serial t
     :components ((:file "packages")
                  (:file "utils")
+                 (:file "hierarchy")
                  (:file "images")
                  (:file "galleries")
                  (:file "web-ui")))

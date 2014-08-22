@@ -1,10 +1,7 @@
 (in-package :simple-image-gallery)
 
-(defclass image ()
-  ((identifier :initarg :identifier
-               :initform ""
-               :reader identifier)
-   (original-path :initarg :original-path
+(defclass image (hierarchy-object)
+  ((original-path :initarg :original-path
                   :initform nil
                   :reader original-path)
    (thumbnail-path :initarg :thumbnail-path

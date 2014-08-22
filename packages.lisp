@@ -31,7 +31,14 @@
    #:protected-p
    #:protection-identifier
    #:image-dimensions
-   #:image-name))
+   #:image-name
+   #:gallery-root
+   #:hierarchy-object
+   #:super-object
+   #:sub-objects
+   #:find-sub-object
+   #:find-object
+   #:find-object-hierarchy))
 
 (defpackage :simple-image-gallery-web
   (:nicknames :sig-web)
@@ -39,6 +46,7 @@
         :web-utils
         :cl-who :bootstrap
         :hunchentoot
-        :css-lite)
+        :css-lite
+        :split-sequence)
   (:export))
 
