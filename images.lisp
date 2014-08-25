@@ -19,7 +19,9 @@
                      :initform 0
                      :reader gallery-position)
    (datetime :initform nil
-             :reader datetime))
+             :reader datetime)
+   (foto-parameters :initform nil
+                    :reader foto-parameters))
   (:documentation "Keep track of filename and file locations. Later
   perhaps also cache EXIF metadata."))
 
@@ -132,7 +134,16 @@
   (handler-case
       (let ((exif (zpb-exif:make-exif (original-path image))))
         (setf (slot-value image 'datetime)
-              (zpb-exif:parsed-exif-value "DateTime" exif)))
+              (zpb-exif:parsed-exif-value "DateTime" exif))
+        (setf (slot-value image 'foto-parameters)
+              (make-foto-parameters
+               :focal-length (zpb-exif:parsed-exif-value "FocalLength" exif)
+               :aperture (or (zpb-exif:parsed-exif-value "ApertureValue" exif)
+                             (zpb-exif:parsed-exif-value "FNumber" exif))
+               :shutter-speed (or (zpb-exif:exif-value "ShutterSpeedValue" exif)
+                                  (zpb-exif:exif-value "ExposureTime" exif))
+               :iso (zpb-exif:exif-value "ISOSpeedRatings" exif)
+               :flash (zpb-exif:parsed-exif-value "Flash" exif))))
     (zpb-exif:invalid-stream ()))
   (when (or (not (slot-boundp image 'datetime))
             (not (slot-value image 'datetime)))

@@ -60,7 +60,7 @@ for example contains something like this
 *** DONE date of image
 if no exif data is present, fall back to =file-write-date=
 =DateTime=
-*** TODO shot data
+*** DONE shot data
 + focal length =FocalLength=
 + aperture =FNumber=
 + Shutter speed =ExposureTime=
@@ -78,7 +78,7 @@ generation of thumbnails could be done as needed, or once at import time
 *** TODO creating zip files, and providing download links
 ** DONE generating thumbnail file names
    SCHEDULED: <2014-04-27 So>
-** TODO support for (mostly) arbitrary hierarchical structure [100%]
+** DONE support for (mostly) arbitrary hierarchical structure [100%]
 *** DONE subgalleries
     SCHEDULED: <2014-08-22 Fr>
 *** DONE datastructure support
@@ -99,7 +99,7 @@ but only if protection level allows access
 + [X] index
 + [X] identifier
 ***** DONE link generation
-* Tasks [8/12]
+* Tasks [11/14]
 ** DONE styling to use bootstrap
    SCHEDULED: <2014-08-12 Di>
 ** TODO use something safer than =read=
@@ -121,7 +121,7 @@ but only if protection level allows access
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::"Download%20original%20image")))))))][file:~/Projekte/simple-image-gallery/web-ui.lisp::"Download original image")))))))]]
 ** DONE enable password protection for image galleries (i.e. private galleries)
 *** TODO encryption/hashing for passwords
-** TODO show some statistics of the gallery
+** DONE show some statistics of the gallery
 this could go in a popup
 *** DONE compound size
 *** DONE number of images
@@ -132,7 +132,7 @@ this could go in a popup
    [2014-06-25 Mi 14:57]
    [[file:~/Projekte/simple-image-gallery/galleries.lisp::(filter%20#'gallery-from-path%20(gallery-pathnames)))][file:~/Projekte/simple-image-gallery/galleries.lisp::(filter #'gallery-from-path (gallery-pathnames)))]]
 *** DONE compute date of gallery as most recent date of its images
-** TODO put image information into a table
+** DONE put image information into a table
    [2014-06-25 Mi 15:42]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(:span%20:class%20"datetime"%20"%20&nbsp%3B%20("%20(str%20(fmt-universal-time%20(sig:datetime%20image)))%20")%20")][file:~/Projekte/simple-image-gallery/web-ui.lisp::(:span :class "datetime" " &nbsp; (" (str (fmt-universal-time (sig:datetime image))) ") ")]]
 ** DONE indicate protected galleries in the overview
@@ -143,3 +143,6 @@ this could go in a popup
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp:::min-width%20"600px"][file:~/Projekte/simple-image-gallery/web-ui.lisp:::min-width "600px"]]
 ** DONE disallow gallery name "data"
    [2014-08-22 Fr 12:14]
+** TODO do not show additional column if no subgalleries are present
+   [2014-08-25 Mo 11:54]
+   [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(:th%20:class%20"text-right"%20"including%20subgalleries")))][file:~/Projekte/simple-image-gallery/web-ui.lisp::(:th :class "text-right" "including subgalleries")))]]

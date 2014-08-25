@@ -211,5 +211,23 @@ the top of the form."
        
        (:p :class "text-center"
           (:a :href (image-data-url image "original") :target "_blank"
-             "Download original image")
-          " [ " (esc (sig:format-file-size (sig:original-image-size image))) " ] "))))
+             "Download original image"))
+       (:table :class "table table-striped" :style (inline-css :font-size "80%"
+                                                               :width "auto"
+                                                               :margin-top "1em")
+          (:thead (:tr (:th "Property") (:th "Value")))
+          (:tbody
+             (:tr (:td "Original file size")
+                (:td (str (sig:format-file-size (sig:original-image-size image)))))
+             (awhen (sig:foto-parameters image)
+               (htm (:tr (:td "Focal length")
+                       (:td (fmt "~F mm" (sig:foto-focal-length it))))
+                    (:tr (:td "Aperture")
+                       (:td (str (sig:foto-aperture it))))
+                    (:tr (:td "Shutter speed")
+                       (:td (str (sig:foto-shutter-speed it))))
+                    (:tr (:td "ISO level")
+                       (:td (str (sig:foto-iso it))))
+                    (:tr (:td "Flash")
+                       (:td (fmt "~:[no~;yes~]" (sig:foto-flash it)))))))
+          ))))

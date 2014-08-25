@@ -49,7 +49,13 @@
    #:newest-image-date
    #:TOTAL-NEWEST-IMAGE-DATE
    #:TOTAL-OLDEST-IMAGE-DATE
-   #:oldest-image-date))
+   #:oldest-image-date
+   #:foto-flash
+   #:foto-iso
+   #:foto-shutter-speed
+   #:foto-aperture
+   #:foto-focal-length
+   #:foto-parameters))
 
 (defpackage :simple-image-gallery-web
   (:nicknames :sig-web)
