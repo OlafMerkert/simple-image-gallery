@@ -236,3 +236,5 @@ the top of the form."
                     (:tr (:td "Flash")
                        (:td (fmt "~:[no~;yes~]" (sig:foto-flash it)))))))
           ))))
+
+(register-web-application "Simple Image Gallery" "/simple-gallery")
