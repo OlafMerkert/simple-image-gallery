@@ -163,7 +163,33 @@ the top of the form."
                                               (inline-css :width (unit (car it))
                                                           :height (unit (cdr it)))                                               
                                               "")))))
-                     images)))))))
+                     images)))))
+    ;; show statistics about the gallery
+    (:table :class "table table-striped" :style (inline-css :font-size "80%"
+                                                            :width "auto"
+                                                            :margin-top "1em")
+       (:thead
+          (:tr (:th "Quantity")
+             (:th :class "text-right" "in this gallery")
+             (:th :class "text-right" "including subgalleries")))
+       (:tbody
+          (:tr
+             (:td "Number of images")
+             (:td :class "text-right" (str (sig:nr-of-images gallery)))
+             (:td :class "text-right" (str (sig:total-nr-of-images gallery))))
+          (:tr
+             (:td "Total Image file size")
+             (:td :class "text-right" (str (format-file-size (sig:compound-size gallery))))
+             (:td :class "text-right" (str (format-file-size (sig:total-compound-size gallery)))))
+          (:tr
+             (:td "Oldest image date")
+             (:td :class "text-right" (str (fmt-universal-time (sig:oldest-image-date gallery))))
+             (:td :class "text-right" (str (fmt-universal-time (sig:total-oldest-image-date gallery)))))
+          (:tr
+             (:td "Newest image date")
+             (:td :class "text-right" (str (fmt-universal-time (sig:newest-image-date gallery))))
+             (:td :class "text-right" (str (fmt-universal-time (sig:total-newest-image-date gallery))))) 
+          ))))
 
 (defmethod present-object ((image sig:image))
   "Display a single image of a gallery"

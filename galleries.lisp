@@ -105,6 +105,25 @@
 
 ;; todo move up
 
+;;; statistics functions
+(defun nr-of-images (gallery)
+  (length (image-sequence gallery)))
 
+(memodefun total-nr-of-images (gallery)
+  (reduce #'+ (gallery-sequence gallery)
+          :key #'total-nr-of-images
+          :initial-value (nr-of-images gallery)))
 
+(defmacro define-gallery-statistic (name reducer image-key)
+  `(progn
+     (memodefun ,name (gallery)
+       (reduce #',reducer (image-sequence gallery)
+               :key #',image-key))
+     (memodefun ,(symb 'total- name) (gallery)
+       (reduce #',reducer (gallery-sequence gallery)
+               :key #',(symb 'total- name)
+               :initial-value (,name gallery)))))
 
+(define-gallery-statistic compound-size + original-image-size)
+(define-gallery-statistic oldest-image-date min datetime)
+(define-gallery-statistic newest-image-date max datetime)

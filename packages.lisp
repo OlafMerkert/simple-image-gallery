@@ -40,7 +40,16 @@
    #:find-object
    #:find-object-hierarchy
    #:object-hierarchy
-   #:abstract-gallery))
+   #:abstract-gallery
+   #:nr-of-images
+   #:compound-size
+   #:total-size
+   #:total-nr-of-images
+   #:total-compound-size
+   #:newest-image-date
+   #:TOTAL-NEWEST-IMAGE-DATE
+   #:TOTAL-OLDEST-IMAGE-DATE
+   #:oldest-image-date))
 
 (defpackage :simple-image-gallery-web
   (:nicknames :sig-web)

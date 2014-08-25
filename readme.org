@@ -123,10 +123,10 @@ but only if protection level allows access
 *** TODO encryption/hashing for passwords
 ** TODO show some statistics of the gallery
 this could go in a popup
-*** TODO compound size
-*** TODO number of images
-*** TODO last updates
-*** TODO time range of images
+*** DONE compound size
+*** DONE number of images
+*** DONE last updates
+*** DONE time range of images
 *** TODO occuring tags
 ** DONE sort galleries by date
    [2014-06-25 Mi 14:57]

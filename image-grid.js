@@ -32,6 +32,8 @@ function alignGrid(grid) {
     }
     accumulatedTop += maxHeight + spacing;
   }
+  // finally, we should adjust the size of the grid
+  grid.height(accumulatedTop - pos.top + 2 * spacing);
 }
 
 var processResize = false;
