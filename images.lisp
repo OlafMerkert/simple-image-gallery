@@ -42,7 +42,7 @@
   (protected-p (gallery image)))
 
 (defmethod protection-identifier ((image image))
-  (gallery image))
+  (protection-identifier (gallery image)))
 
 (create-standard-print-object image identifier)
 

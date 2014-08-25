@@ -32,7 +32,7 @@
   allows to reconstruct the path easily)."))
 
 (defclass sub-gallery (abstract-gallery)
-  ((parent-gallery :initarg :parent-gallery
+  ((parent-gallery :initarg :parent
          :initform nil
          :reader parent-gallery))
   (:documentation "TODO"))

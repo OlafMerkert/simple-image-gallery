@@ -23,30 +23,46 @@
 (defun gallery-from-path (gallery-path)
   "Look at the special file in the given `path', and create objects
 for the gallery and the images it contains."
-  (let ((sexp-file (merge-pathnames "simple-gallery.sexp" gallery-path)))
-    (if (fad:file-exists-p sexp-file)
-        (plist-bind (title description last-updated images password) (rest (read-file-1 sexp-file))
-          (aprog1
-              (make-instance 'gallery
-                             :identifier (last1 (pathname-directory gallery-path))
-                             :title title :description description :last-updated last-updated
-                             :password password)
-            (setf (slot-value it 'image-sequence)
-                  (let ((index -1))
-                    (map 'vector (clambda (image-from-path (merge-pathnames x! gallery-path)
-                                                      it (incf index)))
-                         images)))
-            ;; compute the date
-            (setf (slot-value it 'last-updated)
-                  (gallery-compute-date it))))
-        (warn 'missing-gallery-file :gallery-path gallery-path))))
-;; todo support for nested galleries
-
-(defun image-from-path (pathname gallery &optional (position 0))
-  (make-instance 'image :original-path pathname
-                 :gallery gallery
-                 :gallery-position position
-                 :identifier (pathname-name pathname)))
+  (labels ((setup-sub-objects (gallery galleries images)
+             (setf (slot-value gallery 'gallery-sequence)
+                   (map 'vector (clambda (create-subgallery gallery (second x!) (nthcdr 2 x!)))
+                        galleries)
+                   (slot-value gallery 'image-sequence)
+                   (let ((index -1))
+                     (map 'vector (clambda (image-from-path (merge-pathnames x! gallery-path)
+                                                       gallery (incf index)))
+                          images)))
+             (setf (slot-value gallery 'last-updated)
+                   (gallery-compute-date gallery))
+             ;; compute the date
+             gallery)
+           (create-gallery (identifier sexp)
+             (plist-bind (title description images galleries password) sexp
+               (setup-sub-objects
+                (make-instance 'gallery
+                               :identifier identifier
+                               :title title :description description
+                               :password password)
+                galleries images)))
+           (create-subgallery (parent identifier sexp)
+             (plist-bind (title description images galleries) sexp
+               (setup-sub-objects
+                (make-instance 'sub-gallery
+                               :parent parent
+                               :identifier identifier
+                               :title title :description description)
+                galleries images)))
+           ;; images
+           (image-from-path (pathname gallery &optional (position 0))
+             (make-instance 'image :original-path pathname
+                            :gallery gallery
+                            :gallery-position position
+                            :identifier (pathname-name pathname))))
+    (let ((sexp-file (merge-pathnames "simple-gallery.sexp" gallery-path))
+          (identifier (last1 (pathname-directory gallery-path))))
+      (if (fad:file-exists-p sexp-file)
+          (create-gallery identifier (rest (read-file-1 sexp-file))) ; gallery data
+          (warn 'missing-gallery-file :gallery-path gallery-path)))))
 
 (defun generate-galleries ()
   (sort 

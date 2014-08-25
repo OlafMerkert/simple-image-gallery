@@ -119,15 +119,19 @@ the top of the form."
 (defun present-galleries (galleries)
   (html/node
     (:ul :class "bigger list-unstyled"
-       (dolist (g galleries)
-         (htm (:li
-                 (:span :class "glyphicon glyphicon-picture"
-                    :style (inline-css :margin-right "1em")) 
-                 (:a :href (object-url g)
-                    (esc (sig:title g)))
-                 (:span :class "datetime" " (" (str (fmt-universal-time (sig:last-updated g))) ") ")
-                 (when (sig:protected-p g)
-                   (htm " " (:span :class "protected" "(password required)") " "))))))))
+       (map nil
+            (lambda (g)
+              (htm (:li
+                      (:span :class "glyphicon glyphicon-picture"
+                         :style (inline-css :margin-right "1em")) 
+                      (:a :href (object-url g)
+                         (esc (sig:title g)))
+                      (:span :class "datetime" " (" (str (fmt-universal-time (sig:last-updated g))) ") ")
+                      (unless (authorised-p g)
+                        (htm " "
+                             (:span :class "glyphicon glyphicon-lock")
+                             (:span :class "sr-only" "(password required)") " ")))))
+            galleries))))
 
 (defmethod present-object ((object (eql 'sig:gallery-root)))
   "Display a list of all known galleries"
@@ -146,17 +150,20 @@ the top of the form."
       (unless (length=0 galleries)
         (present-galleries galleries)))
     ;; show a grid with all the images
-    (:div :class "image-grid"
-       (map nil
-            (lambda (image)
-              (htm (:a :href (object-url image)
-                      (:img :src (image-data-url image "thumbnail")
-                         :class "img-thumbnail"
-                         :style (aif (sig:image-dimensions (sig:thumbnail-path image))
-                                     (inline-css :width (unit (car it))
-                                                 :height (unit (cdr it)))                                               
-                                     "")))))
-            (sig:sub-objects gallery 'sig:image)))))
+    (let ((images (sig:sub-objects gallery 'sig:image)))
+      (unless (length=0 images)
+        (htm (:h3 "Images")
+             (:div :class "image-grid"
+                (map nil
+                     (lambda (image)
+                       (htm (:a :href (object-url image)
+                               (:img :src (image-data-url image "thumbnail")
+                                  :class "img-thumbnail"
+                                  :style (aif (sig:image-dimensions (sig:thumbnail-path image))
+                                              (inline-css :width (unit (car it))
+                                                          :height (unit (cdr it)))                                               
+                                              "")))))
+                     images)))))))
 
 (defmethod present-object ((image sig:image))
   "Display a single image of a gallery"

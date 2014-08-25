@@ -78,11 +78,11 @@ generation of thumbnails could be done as needed, or once at import time
 *** TODO creating zip files, and providing download links
 ** DONE generating thumbnail file names
    SCHEDULED: <2014-04-27 So>
-** TODO support for (mostly) arbitrary hierarchical structure [80%]
+** TODO support for (mostly) arbitrary hierarchical structure [100%]
 *** DONE subgalleries
     SCHEDULED: <2014-08-22 Fr>
 *** DONE datastructure support
-*** TODO file format support
+*** DONE file format support
     SCHEDULED: <2014-08-22 Fr>
 *** DONE integration of protection scheme
 when traversing down the object tree, check for authorisation at every point
