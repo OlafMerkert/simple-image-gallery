@@ -26,6 +26,10 @@
                                   (lambda () (handle-static-file #P"/home/olaf/Projekte/simple-image-gallery/image-grid.js" )))
          *dispatch-table*)
 
+(pushnew (create-regex-dispatcher "^/scripts/image-slideshow\\.js$"
+                                  (lambda () (handle-static-file #P"/home/olaf/Projekte/simple-image-gallery/image-slideshow.js" )))
+         *dispatch-table*)
+
 (declaim (inline remove-file-ending parse-script-name))
 (defun remove-file-ending (string &optional (max-length 4))
   (mvbind (match registers)
@@ -62,6 +66,7 @@
   "Main html document layout for all webpages of the simple gallery."
   `(html/document+bs (:title (conc "Simple Image Gallery - ",title)
                         :script "/scripts/image-grid.js"
+                        ;; :script "/scripts/image-slideshow.js"
                         :style "/style/bootstrap-nonav.css")
      ;; todo might we have some use for a navbar -> new keyword
      ;; argument

@@ -45,7 +45,7 @@ $(document).ready(function() {
     $(window).resize(function() {
       if( !processResize ) {
         processResize = true;
-        console.log("processing resize event");
+        console.log("processing resize event for image-grid");
         alignGrid($grid);
         processResize = false;
       }
