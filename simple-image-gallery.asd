@@ -19,4 +19,5 @@
                  (:file "images")
                  (:file "galleries")
                  (:file "file-formats")
+                 (:file "web-authentification")
                  (:file "web-ui")))
