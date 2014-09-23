@@ -127,8 +127,7 @@ the top of the form."
        (map nil
             (lambda (g)
               (htm (:li
-                      (:span :class "glyphicon glyphicon-picture"
-                         :style (inline-css :margin-right "1em")) 
+                      (:span :class "glyphicon glyphicon-picture icon-space-right") 
                       (:a :href (object-url g)
                          (esc (sig:title g)))
                       ;; (:span :class "datetime" " (" (str (fmt-universal-time (sig:last-updated g))) ") ")
@@ -149,7 +148,7 @@ the top of the form."
 (defmethod present-object ((gallery sig:abstract-gallery))
   "Display a grid of all images in a gallery"
   (html/node
-    (:p :style (inline-css :margin-bottom "1em")
+    (:p :class "medskip-after"
        (esc (sig:description gallery)))
     ;; add a list of subgalleries (if there are any)
     (let ((galleries (sig:sub-objects gallery 'sig:gallery)))
@@ -166,14 +165,13 @@ the top of the form."
                                (:img :src (image-data-url image "thumbnail")
                                   :class "img-thumbnail"
                                   :style (aif (sig:image-dimensions (sig:thumbnail-path image))
-                                              (inline-css :width (unit (car it))
-                                                          :height (unit (cdr it)))                                               
+                                              (css-lite:inline-css
+                                               :width (unit (car it))
+                                               :height (unit (cdr it)))
                                               "")))))
                      images)))))
     ;; show statistics about the gallery
-    (:table :class "table table-striped" :style (inline-css :font-size "80%"
-                                                            :width "auto"
-                                                            :margin-top "1em")
+    (:table :class "table table-striped statistics-table"
        (:thead
           (:tr (:th "Quantity")
              (:th :class "text-right" "in this gallery")

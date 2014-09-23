@@ -63,7 +63,6 @@
         :web-utils
         :cl-who :bootstrap
         :hunchentoot
-        :css-lite
         :split-sequence)
   (:export
    #:object-hierarchy))
