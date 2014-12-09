@@ -216,7 +216,7 @@ the top of the form."
        (:p :class "text-center"
           (:a :href (image-data-url image "original") :target "_blank"
              "Download original image"))
-       (:table :class "table table-striped" :style (inline-css :font-size "80%"
+       (:table :class "table table-striped" :style (css-lite:inline-css :font-size "80%"
                                                                :width "auto"
                                                                :margin-top "1em")
           (:thead (:tr (:th "Property") (:th "Value")))
