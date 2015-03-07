@@ -20,6 +20,24 @@
   (max (reduce #'max (image-sequence gallery) :key #'datetime :initial-value 0)
        (reduce #'max (gallery-sequence gallery) :key #'last-updated :initial-value 0)))
 
+(defun filter-by-filetype (type pathnames)
+  "Filter a sequence of `pathnames' to those have given `type'."
+  (remove type pathnames :key #'pathname-type :test-not #'string-equal))
+
+
+(defun resolve-images (gallery-path images &key (type "jpg"))
+  "Produce a sequence of pathnames from a list of `images' or a scan
+command. Currently supported: `:auto' and `(:auto subpath)'."
+  (labels ((resolve (subpath)
+             (filter-by-filetype type (fad:list-directory
+                                       (merge-pathnames subpath gallery-path)))))
+    (cond ((and (atom images) (eq images :auto))
+           (resolve ""))
+          ((and (consp images) (eq (car images) :auto))
+           (resolve (second images)))
+          ((listp images)
+           (map 'vector (clambda (merge-pathnames x! gallery-path)) images)))))
+
 (defun gallery-from-path (gallery-path)
   "Look at the special file in the given `path', and create objects
 for the gallery and the images it contains."
@@ -29,9 +47,8 @@ for the gallery and the images it contains."
                         galleries)
                    (slot-value gallery 'image-sequence)
                    (let ((index -1))
-                     (map 'vector (clambda (image-from-path (merge-pathnames x! gallery-path)
-                                                       gallery (incf index)))
-                          images)))
+                     (map 'vector (clambda (image-from-path x! gallery (incf index)))
+                          (resolve-images gallery-path images))))
              (setf (slot-value gallery 'last-updated)
                    (gallery-compute-date gallery))
              ;; compute the date
