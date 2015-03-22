@@ -55,7 +55,8 @@
    #:foto-shutter-speed
    #:foto-aperture
    #:foto-focal-length
-   #:foto-parameters))
+   #:foto-parameters
+   #:gallery-sequence))
 
 (defpackage :simple-image-gallery-web
   (:nicknames :sig-web)

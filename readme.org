@@ -99,7 +99,7 @@ but only if protection level allows access
 + [X] index
 + [X] identifier
 ***** DONE link generation
-* Tasks [11/14]
+* Tasks [12/14]
 ** DONE styling to use bootstrap
    SCHEDULED: <2014-08-12 Di>
 ** TODO use something safer than =read=
@@ -143,6 +143,6 @@ this could go in a popup
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp:::min-width%20"600px"][file:~/Projekte/simple-image-gallery/web-ui.lisp:::min-width "600px"]]
 ** DONE disallow gallery name "data"
    [2014-08-22 Fr 12:14]
-** TODO do not show additional column if no subgalleries are present
+** DONE do not show additional column if no subgalleries are present
    [2014-08-25 Mo 11:54]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(:th%20:class%20"text-right"%20"including%20subgalleries")))][file:~/Projekte/simple-image-gallery/web-ui.lisp::(:th :class "text-right" "including subgalleries")))]]

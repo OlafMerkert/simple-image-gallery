@@ -145,6 +145,56 @@ the top of the form."
 (defun unit (number &optional (unit 'px))
   (format nil "~A~(~A~)" number unit))
 
+(defmacro! sgs-insert-fields (keyw form)
+  `(mapcar (lambda (,g!column)
+             (let ((it (getf ,g!column ,keyw)))
+               ,form))
+           columns))
+
+(defun show-gallery-statistics (gallery)
+  (with-gensyms!
+    (macrolet
+        ((stat-table (columns)
+           `(html/node
+              ;; show statistics about the gallery
+              (:table :class "table table-striped statistics-table"
+                 (:thead
+                    (:tr (:th "Quantity")
+                       ,@(sgs-insert-fields :head
+                                            `(:th :class "text-right" ,it))))
+                 (:tbody
+                    (:tr (:td "Number of images")
+                       ,@ (sgs-insert-fields :nr-of-imgs
+                                             `(:td :class "text-right" (str ,it))))
+                    (:tr (:td "Total Image file size")
+                       ,@(sgs-insert-fields :compound-size
+                                            `(:td :class "text-right" (str (format-file-size ,it)))))
+                    (:tr (:td "Oldest image date")
+                       ,@ (sgs-insert-fields :oldest-image
+                                             `(:td :class "text-right" (str (fmt-universal-time ,it)))))
+                    (:tr (:td "Newest image date")
+                       ,@ (sgs-insert-fields :newest-image
+                                             `(:td :class "text-right" (str (fmt-universal-time ,it))))))))))
+      (cond ((and #1=(< 0 (length (sig:image-sequence gallery)))
+                  #2=(< 0 (length (sig:gallery-sequence gallery))))
+             (stat-table (#3=(:head "in this gallery"
+                                :nr-of-imgs (sig:nr-of-images gallery)
+                                :compound-size (sig:compound-size gallery)
+                                :oldest-image (sig:oldest-image-date gallery)
+                                :newest-image  (sig:newest-image-date gallery))
+                             #4=(:head "including subgalleries"
+                                   :nr-of-imgs  (sig:total-nr-of-images gallery)
+                                   :compound-size (sig:total-compound-size gallery)
+                                   :oldest-image (sig:total-oldest-image-date gallery)
+                                   :newest-image (sig:total-newest-image-date gallery)
+                                   ))))
+            (#1# (stat-table (#3#)))
+            (#2# (stat-table ((:head "in subgalleries"
+                                 :nr-of-imgs  (sig:total-nr-of-images gallery)
+                                 :compound-size (sig:total-compound-size gallery)
+                                 :oldest-image (sig:total-oldest-image-date gallery)
+                                 :newest-image (sig:total-newest-image-date gallery)))))))))
+
 (defmethod present-object ((gallery sig:abstract-gallery))
   "Display a grid of all images in a gallery"
   (html/node
@@ -170,30 +220,7 @@ the top of the form."
                                                :height (unit (cdr it)))
                                               "")))))
                      images)))))
-    ;; show statistics about the gallery
-    (:table :class "table table-striped statistics-table"
-       (:thead
-          (:tr (:th "Quantity")
-             (:th :class "text-right" "in this gallery")
-             (:th :class "text-right" "including subgalleries")))
-       (:tbody
-          (:tr
-             (:td "Number of images")
-             (:td :class "text-right" (str (sig:nr-of-images gallery)))
-             (:td :class "text-right" (str (sig:total-nr-of-images gallery))))
-          (:tr
-             (:td "Total Image file size")
-             (:td :class "text-right" (str (format-file-size (sig:compound-size gallery))))
-             (:td :class "text-right" (str (format-file-size (sig:total-compound-size gallery)))))
-          (:tr
-             (:td "Oldest image date")
-             (:td :class "text-right" (str (fmt-universal-time (sig:oldest-image-date gallery))))
-             (:td :class "text-right" (str (fmt-universal-time (sig:total-oldest-image-date gallery)))))
-          (:tr
-             (:td "Newest image date")
-             (:td :class "text-right" (str (fmt-universal-time (sig:newest-image-date gallery))))
-             (:td :class "text-right" (str (fmt-universal-time (sig:total-newest-image-date gallery))))) 
-          ))))
+    (show-gallery-statistics gallery)))
 
 (defmethod present-object ((image sig:image))
   "Display a single image of a gallery"
