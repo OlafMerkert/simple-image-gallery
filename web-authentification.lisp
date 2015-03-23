@@ -8,7 +8,8 @@
    #:authorise
    #:with-protection
    #:with-protection/silent
-   #:acquire-authorisation))
+   #:acquire-authorisation
+   #:auth-required-p))
 
 (in-package :web-authentification)
 
@@ -51,11 +52,17 @@
             #1# table))
     (setf (gethash (protection-identifier object) table) t)))
 
+(defun auth-required-p (object)
+  "Determine if access to this `object' is already granted, or further
+authentification is required."
+  (and (protected-p object)
+       (not (authorised-p object))))
+
 ;;; macro for easy access restricting
 (defun with-protection% (object acquire-authorisation body-function)
   "Backing function for `with-protection'."
-  (if (and (protected-p object)
-           (not (authorised-p object)))
+  (declare (inline auth-required-p))
+  (if (auth-required-p object)
       (if acquire-authorisation
           ;; produce the login form
           (let ((lf (acquire-authorisation object (protected-p object))))
@@ -64,7 +71,7 @@
                   (authorise object)
                   (funcall body-function))
                 lf))
-          (error-code +http-forbidden+))
+          (web-utils:error-code +http-forbidden+))
       ;; provide the page content
       (funcall body-function)))
 

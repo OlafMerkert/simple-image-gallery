@@ -11,12 +11,12 @@
                cl-gd
                split-sequence
                rutils)
-    :serial t
-    :components ((:file "packages")
-                 (:file "utils")
-                 (:file "web-authentification")
-                 (:file "hierarchy")
-                 (:file "images")
-                 (:file "galleries")
-                 (:file "file-formats")
-                 (:file "web-ui")))
+  :serial t
+  :components ((:file "web-authentification")
+               (:file "packages")
+               (:file "utils")
+               (:file "hierarchy")
+               (:file "images")
+               (:file "galleries")
+               (:file "file-formats")
+               (:file "web-ui")))

@@ -134,8 +134,7 @@ the top of the form."
                       (:a :href (object-url g)
                          (esc (sig:title g)))
                       ;; (:span :class "datetime" " (" (str (fmt-universal-time (sig:last-updated g))) ") ")
-                      (when (and (sig:protected-p g)
-                                 (not (authorised-p g)))
+                      (when (auth-required-p g)
                         (htm " "
                              (:span :class "glyphicon glyphicon-lock")
                              (:span :class "sr-only" "(password required)") " ")))))
