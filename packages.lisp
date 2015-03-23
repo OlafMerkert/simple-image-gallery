@@ -2,7 +2,8 @@
 
 (defpackage :simple-image-gallery
   (:nicknames :sig)
-  (:use :cl :ol)
+  (:use :cl :ol
+        :web-authentification)
   (:export
    #:*galleries*
    #:gallery
@@ -28,8 +29,6 @@
    #:original-image-size
    #:format-file-size
    #:datetime
-   #:protected-p
-   #:protection-identifier
    #:image-dimensions
    #:image-name
    #:gallery-root
@@ -64,7 +63,8 @@
         :web-utils
         :cl-who :bootstrap
         :hunchentoot
-        :split-sequence)
+        :split-sequence
+        :web-authentification)
   (:export
    #:object-hierarchy))
 

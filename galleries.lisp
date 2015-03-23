@@ -100,7 +100,6 @@
 (defmethod identifier ((object (eql 'gallery-root)))
   "/simple-gallery")
 
-
 (defmethod protected-p ((object (eql 'gallery-root))) nil)
 
 ;; todo move up

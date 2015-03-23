@@ -14,9 +14,9 @@
     :serial t
     :components ((:file "packages")
                  (:file "utils")
+                 (:file "web-authentification")
                  (:file "hierarchy")
                  (:file "images")
                  (:file "galleries")
                  (:file "file-formats")
-                 (:file "web-authentification")
                  (:file "web-ui")))
