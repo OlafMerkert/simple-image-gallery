@@ -41,34 +41,41 @@ command. Currently supported: `:auto' and `(:auto subpath)'."
 (defun gallery-from-path (gallery-path)
   "Look at the special file in the given `path', and create objects
 for the gallery and the images it contains."
-  (labels ((setup-sub-objects (gallery galleries images)
+  (labels ((setup-sub-objects (gallery galleries images &key sort-date)
              (setf (slot-value gallery 'gallery-sequence)
                    (map 'vector (clambda (create-subgallery gallery (second x!) (nthcdr 2 x!)))
-                        galleries)
-                   (slot-value gallery 'image-sequence)
-                   (let ((index -1))
-                     (map 'vector (clambda (image-from-path x! gallery (incf index)))
-                          (resolve-images gallery-path images))))
+                        galleries))
+             (let ((index -1)
+                   (images (map 'vector (clambda (image-from-path x! gallery))
+                                (resolve-images gallery-path images))))
+               (when sort-date
+                 (setf images (sort images #'<= :key #'datetime)))
+               (map nil (lambda (image) (setf (slot-value image 'gallery-position)
+                                          (incf index)))
+                    images)
+               (setf (slot-value gallery 'image-sequence) images))
              (setf (slot-value gallery 'last-updated)
                    (gallery-compute-date gallery))
              ;; compute the date
              gallery)
            (create-gallery (identifier sexp)
-             (plist-bind (title description images galleries password) sexp
+             (plist-bind (title description images galleries password sort-date) sexp
                (setup-sub-objects
                 (make-instance 'gallery
                                :identifier identifier
                                :title title :description description
                                :password password)
-                galleries images)))
+                galleries images
+                :sort-date sort-date)))
            (create-subgallery (parent identifier sexp)
-             (plist-bind (title description images galleries) sexp
+             (plist-bind (title description images galleries  sort-date) sexp
                (setup-sub-objects
                 (make-instance 'sub-gallery
                                :parent parent
                                :identifier identifier
                                :title title :description description)
-                galleries images)))
+                galleries images
+                :sort-date sort-date)))
            ;; images
            (image-from-path (pathname gallery &optional (position 0))
              (make-instance 'image :original-path pathname
