@@ -12,8 +12,7 @@
                split-sequence
                rutils)
   :serial t
-  :components ((:file "web-authentification")
-               (:file "packages")
+  :components ((:file "packages")
                (:file "utils")
                (:file "hierarchy")
                (:file "images")
