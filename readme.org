@@ -99,7 +99,7 @@ but only if protection level allows access
 + [X] index
 + [X] identifier
 ***** DONE link generation
-* Tasks [12/14]
+* Tasks [13/15]
 ** DONE styling to use bootstrap
    SCHEDULED: <2014-08-12 Di>
 ** TODO use something safer than =read=
@@ -146,3 +146,5 @@ this could go in a popup
 ** DONE do not show additional column if no subgalleries are present
    [2014-08-25 Mo 11:54]
    [[file:~/Projekte/simple-image-gallery/web-ui.lisp::(:th%20:class%20"text-right"%20"including%20subgalleries")))][file:~/Projekte/simple-image-gallery/web-ui.lisp::(:th :class "text-right" "including subgalleries")))]]
+** DONE fix presentation of shutter speed
++ use fraction if numerator is $1$, otherwise use float

@@ -245,9 +245,10 @@ the top of the form."
        (:p :class "text-center"
           (:a :href (image-data-url image "original") :target "_blank"
              "Download original image"))
-       (:table :class "table table-striped" :style (css-lite:inline-css :font-size "80%"
-                                                               :width "auto"
-                                                               :margin-top "1em")
+       (:table :class "table table-striped"
+          :style (css-lite:inline-css :font-size "80%"
+                                      :width "auto"
+                                      :margin-top "1em")
           (:thead (:tr (:th "Property") (:th "Value")))
           (:tbody
              (:tr (:td "Original file size")
@@ -258,7 +259,9 @@ the top of the form."
                     (:tr (:td "Aperture")
                        (:td (str (sig:foto-aperture it))))
                     (:tr (:td "Shutter speed")
-                       (:td (str (sig:foto-shutter-speed it))))
+                       (:td (le1 (speed (sig:foto-shutter-speed it))
+                              (if (= 1 (numerator speed)) (str speed)
+                                  (fmt "~F" speed)))))
                     (:tr (:td "ISO level")
                        (:td (str (sig:foto-iso it))))
                     (:tr (:td "Flash")
