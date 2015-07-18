@@ -15,7 +15,10 @@
                      :reader gallery-sequence)
    (last-updated :initarg :last-updated
                  :initform nil
-                 :reader last-updated))
+                 :reader last-updated)
+   (password :initarg :password
+             :initform nil
+             :reader password))
   (:documentation "TODO"))
 
 (defmethod initialize-instance :after  ((abstract-gallery abstract-gallery) &key)
@@ -23,9 +26,7 @@
       (warn "Galleries with name \"data\" cannot be accessed from the web interface.")))
 
 (defclass gallery (abstract-gallery)
-  ((password :initarg :password
-             :initform nil
-             :reader password))
+  ()
   (:documentation "A gallery has just a title, description and
   describes a sequence of images. There may also be some date
   information, and we use the folder name as identifier (this also
@@ -70,10 +71,17 @@
   (password gallery))
 
 (defmethod protection-identifier ((sub-gallery sub-gallery))
-  (aif (super-object sub-gallery) (protection-identifier it)))
+  ;; this has to return the object which carries the `password', so if
+  ;; the `sub-gallery' has its own, do not return the parent.
+  (if (password sub-gallery)
+      sub-gallery
+      (aif (super-object sub-gallery) (protection-identifier it))))
 
 (defmethod protected-p ((sub-gallery sub-gallery))
-  (aif (super-object sub-gallery) (protected-p it)))
+  ;; a `sub-gallery' can be protected by at most one `password', so if it
+  ;; has an explicit one, it overrides the parent password.
+  (or (password sub-gallery)
+      (aif (super-object sub-gallery) (protected-p it))))
 
 (create-standard-print-object abstract-gallery identifier)
 

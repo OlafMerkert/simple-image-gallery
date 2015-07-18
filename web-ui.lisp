@@ -121,7 +121,7 @@ the top of the form."
               (password-form :wrong-password t))
           (password-form)))))
 
-(defmethod acquire-authorisation ((gallery sig:gallery) (password string))
+(defmethod acquire-authorisation ((gallery sig:abstract-gallery) (password string))
   (gallery-login password "This gallery is protected by a password."))
 
 (defun present-galleries (galleries)

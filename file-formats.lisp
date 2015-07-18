@@ -68,12 +68,13 @@ for the gallery and the images it contains."
                 galleries images
                 :sort-date sort-date)))
            (create-subgallery (parent identifier sexp)
-             (plist-bind (title description images galleries  sort-date) sexp
+             (plist-bind (title description images galleries password sort-date) sexp
                (setup-sub-objects
                 (make-instance 'sub-gallery
                                :parent parent
                                :identifier identifier
-                               :title title :description description)
+                               :title title :description description
+                               :password password)
                 galleries images
                 :sort-date sort-date)))
            ;; images
