@@ -66,7 +66,7 @@
   "Main html document layout for all webpages of the simple gallery."
   `(html/document+bs (:title (conc "Simple Image Gallery - ",title)
                         :script "/scripts/image-grid.js"
-                        ;; :script "/scripts/image-slideshow.js"
+                        :script "/scripts/image-slideshow.js"
                         :style "/style/bootstrap-nonav.css")
      ;; todo might we have some use for a navbar -> new keyword
      ;; argument
@@ -240,9 +240,9 @@ the top of the form."
           (:span :class "datetime btn btn-default text-right" :disabled "disabled"
              (str (fmt-universal-time (sig:datetime image)))))
        (:a :href (object-url (sig:gallery image))
-          (:img :class "img-responsive img-thumbnail" :src (image-data-url image "slideshow")))
+          (:img :class "img-thumbnail" :src (image-data-url image "slideshow")))
        
-       (:p :class "text-center"
+       (:p :style (css-lite:inline-css :margin-left "4em")
           (:a :href (image-data-url image "original") :target "_blank"
              "Download original image"))
        (:table :class "table table-striped"
