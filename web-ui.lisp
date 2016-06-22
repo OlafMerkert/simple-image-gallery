@@ -30,24 +30,8 @@
                                   (lambda () (handle-static-file #P"/home/olaf/Projekte/simple-image-gallery/image-slideshow.js" )))
          *dispatch-table*)
 
-(declaim (inline remove-file-ending parse-script-name))
-(defun remove-file-ending (string &optional (max-length 4))
-  (mvbind (match registers)
-      (cl-ppcre:scan-to-strings
-       `(:sequence (:register (:greedy-repetition 0 nil :everything))
-                   "." (:greedy-repetition 1 ,max-length :word-char-class))
-       string)
-    (if match
-        (aref registers 0)
-        string)))
-
-(defun parse-script-name (string)
-  (rest (split-sequence #\/
-                        (remove-file-ending (url-decode string))
-                        :remove-empty-subseqs t)))
-
 (defun simple-gallery-dispatcher ()
-  (let* ((identifier-list (parse-script-name (script-name*))))
+  (let ((identifier-list (rest (parse-url->breadcrumb (script-name*) t))))
     ;; todo check if authorised
     (cond ((string-equal (first identifier-list) "data")
            (let ((image (sig:find-object (nthcdr 2 identifier-list)))
